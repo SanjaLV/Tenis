@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main games</title>
+</head>
+<body>
+    <h1>Latest games:</h1> <br>
+    {% for x in games %}
+        {% include "small/game_small.html" with game=x only %}
+    {% endfor %}
+</body>
+</html>
