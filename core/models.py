@@ -9,6 +9,8 @@ class Player(models.Model):
     elo    = models.IntegerField()
     userID = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
+    def __str__(self):
+        return self.name + "[" + str(self.elo) + "]"
 
 class Game(models.Model):
     player1 = models.ForeignKey(Player, on_delete=models.PROTECT, related_name="player_one")
@@ -20,4 +22,10 @@ class Game(models.Model):
     change   = models.IntegerField()
     date     = models.DateTimeField()
     verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        output = "%s(%d) %d - %d %s(%d)" % (self.player1.name, self.elo1,
+                                            self.score1, self.score2,
+                                            self.player2.name, self.elo2)
+        return output
 
