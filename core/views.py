@@ -1,5 +1,6 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.template import loader
 
 
@@ -16,3 +17,12 @@ def index(request):
     }
 
     return HttpResponse(template.render(context, request))
+
+
+def game_data(request, game_id):
+    try:
+        this_game = Game.objects.get(pk=game_id)
+    except ObjectDoesNotExist:
+        return HttpResponseForbidden(request)
+    return HttpResponse("ID is " + str(game_id))
+
