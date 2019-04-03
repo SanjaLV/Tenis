@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.template import loader
 
 
-from .models import Game
+from .models import Game, Player
 
 
 def index(request):
@@ -26,3 +26,11 @@ def game_data(request, game_id):
         return HttpResponseForbidden(request)
     return HttpResponse("ID is " + str(game_id))
 
+
+def player_data(request, player_id):
+    try:
+        this_player = Player.objects.get(pk=player_id)
+    except ObjectDoesNotExist:
+        return HttpResponseForbidden(request)
+
+    return HttpResponse("ID is " + str(player_id))
