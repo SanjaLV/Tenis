@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Sanja test{% endblock %}</title>
+
+    <script language="javascript">
+        {% block script %}
+
+        {% endblock %}
+    </script>
+</head>
+
+<header>
+    <a class="nav" href="/">Home</a>
+    <a class="nav"  href="/auction">Auction</a>
+    <a class="nav"  href="/ru">Russian</a>
+    <a class="nav"  href="/en">English</a>
+
+    {% block header %}
+    {% endblock %}
+
+    {% if user.is_authenticated %}
+        <a class="nav"  href="accounts/logout">Logout</a>
+    {% else %}
+        <a class="nav"  href="accounts/login">Login</a>
+    {% endif %}
+</header>
+
+
+
+<body>
+
+{% block main %}
+{% endblock %}
+
+</body>
+</html>
