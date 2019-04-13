@@ -1,0 +1,11 @@
+{% extends "core/base.html" %}
+{% block title %} {{ name }} {% endblock %}
+{% block main %}
+    <h1>{{ name }} [{{ elo }}] </h1> <br>
+    {% for x in last_games %}
+        {% include "small/game_small.html" with game=x only %}
+    {% endfor %}
+    {% comment %}
+        TODO: Achievements list, player graph, last performance.
+    {% endcomment %}
+{% endblock %}

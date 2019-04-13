@@ -4,7 +4,7 @@
         {% include "small/player_small.html" with id=game.player1.pk name=game.player1.name elo=game.elo1  only %}
         {{ game.score1 }} : {{ game.score2 }}
         {% include "small/player_small.html" with id=game.player2.pk name=game.player2.name elo=game.elo2  only %}
-        <a href="game/{{ game.pk }}">Stat</a>
+        <a href="/core/game/{{ game.pk }}">Stat</a>
     </div>
 
 
