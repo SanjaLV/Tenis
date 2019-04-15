@@ -1,0 +1,53 @@
+{% extends "core/base.html" %}
+{% block title %} {{ game.player1 }} vs {{ game.player2 }} {% endblock %}
+{% block main %}
+    <table class="table table-striped text-center">
+        <tr>
+            <td>
+                {% include "small/player_small.html" with id=game.player1.pk name=game.player1.name only %}
+            </td>
+            <td>
+                {% include "small/player_small.html" with id=game.player2.pk name=game.player2.name only %}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ game.elo1 }}
+            </td>
+            <td>
+                {{ game.elo2 }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ game.score1 }}
+            </td>
+            <td>
+                {{ game.score2 }}
+            </td>
+        </tr>
+        <tr>
+           <td colspan="2">
+               {{ game.date }}
+           </td>
+        </tr>
+        {% if game.verified %}
+            <tr>
+                <td colspan="2">
+                    <span class="badge badge-success">Verified</span>
+                </td>
+            </tr>
+        {% endif %}
+        {% if game.change %}
+            <tr>
+                <td>
+                    {{ game.newElo1 }} {{ game.getEloChange1 }}
+                </td>
+                <td>
+                    {{ game.newElo2 }} {{ game.getEloChange2 }}
+                </td>
+            </tr>
+        {% endif %}
+    </table>
+
+{% endblock %}

@@ -42,7 +42,13 @@ def game_data(request, game_id):
         this_game = Game.objects.get(pk=game_id)
     except ObjectDoesNotExist:
         return HttpResponseForbidden(request)
-    return HttpResponse("ID is " + str(game_id))
+
+    template = loader.get_template("core/game.html")
+
+    context = {
+        'game': this_game
+    }
+    return HttpResponse(template.render(context, request))
 
 
 def player_data(request, player_id):

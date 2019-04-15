@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 # Create your models here.
+from django.utils.html import format_html
 
 
 class Player(models.Model):
@@ -10,7 +11,7 @@ class Player(models.Model):
     userID = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return self.name + "[" + str(self.elo) + "]"
+        return self.name
 
 class Game(models.Model):
     player1 = models.ForeignKey(Player, on_delete=models.PROTECT, related_name="player_one")
@@ -40,3 +41,17 @@ class Game(models.Model):
             return "success"
         else:
             return "danger"
+
+    def newElo1(self):
+        return self.elo1 + self.change
+
+    def newElo2(self):
+        return self.elo2 - self.change
+
+    def getEloChange1(self):
+        tp = "success" if self.change > 0.0 else "danger"
+        return format_html('<span class="badge badge-%s">%s</span>' % (tp, str(self.change)))
+
+    def getEloChange2(self):
+        tp = "success" if self.change < 0.0 else "danger"
+        return format_html('<span class="badge badge-%s">%s</span>' % (tp, str(-self.change)))
