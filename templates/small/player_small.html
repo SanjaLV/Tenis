@@ -1,1 +1,4 @@
-<a href="/core/player/{{ id }}">{{ name }}</a>{% if elo %}({{ elo }}){% endif %}
+<a href="/core/player/{{ id }}" {% if color %} class="badge badge-{{ color }}" {% endif %}>{{ name }}</a>
+{% if elo %}
+    ({{ elo }})
+{% endif %}

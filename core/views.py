@@ -60,6 +60,7 @@ def player_data(request, player_id):
     context = {
         'name'       : this_player.name,
         'elo'        : this_player.elo ,
-        'last_games' : last_games
+        'last_games' : last_games,
+        'user_id'    : this_player.pk
     }
     return HttpResponse(template.render(context, request))

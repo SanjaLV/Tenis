@@ -29,3 +29,14 @@ class Game(models.Model):
                                             self.player2.name, self.elo2)
         return output
 
+    def p1win(self):
+        if (self.score1 > self.score2):
+            return "success"
+        else:
+            return "danger"
+
+    def p2win(self):
+        if (self.score2 > self.score1):
+            return "success"
+        else:
+            return "danger"

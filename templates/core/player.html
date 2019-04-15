@@ -1,7 +1,12 @@
 {% extends "core/base.html" %}
 {% block title %} {{ name }} {% endblock %}
 {% block main %}
-    <h1>{{ name }} [{{ elo }}] </h1> <br>
+    <h1>{{ name }}
+        {% if user.pk == user_id %}
+            <span class="badge badge-primary">you</span>
+        {% endif %}
+        [{{ elo }}]
+    </h1> <br>
     {% if last_games %}
         <h2>Last games:</h2>
     {% endif %}

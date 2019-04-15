@@ -1,9 +1,9 @@
 {% if game %}
 
     <div>
-        {% include "small/player_small.html" with id=game.player1.pk name=game.player1.name elo=game.elo1  only %}
+        {% include "small/player_small.html" with id=game.player1.pk name=game.player1.name elo=game.elo1 color=game.p1win only %}
         {{ game.score1 }} : {{ game.score2 }}
-        {% include "small/player_small.html" with id=game.player2.pk name=game.player2.name elo=game.elo2  only %}
+        {% include "small/player_small.html" with id=game.player2.pk name=game.player2.name elo=game.elo2 color=game.p2win only %}
         <a href="/core/game/{{ game.pk }}">Stat</a>
     </div>
 
