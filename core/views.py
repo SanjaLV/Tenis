@@ -1,5 +1,7 @@
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseForbidden
 from django.template import loader
 from django.db.models import Q
@@ -17,6 +19,22 @@ def index(request):
     }
 
     return HttpResponse(template.render(context, request))
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.clean_password2()
+            user = authenticate(username=username, password=raw_password)
+            login(request,user)
+            return redirect('index')
+    else:
+        form = UserCreationForm()
+    return render(request, "registration/register.html", {'form': form})
+
 
 
 def game_data(request, game_id):
