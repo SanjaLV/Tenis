@@ -6,22 +6,23 @@ from django.utils.html import format_html
 
 
 class Player(models.Model):
-    name   = models.CharField(max_length=30)
-    elo    = models.IntegerField()
+    name = models.CharField(max_length=30)
+    elo = models.IntegerField()
     userID = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.name
 
+
 class Game(models.Model):
-    player1 = models.ForeignKey(Player, on_delete=models.PROTECT, related_name="player_one")
+    player1  = models.ForeignKey(Player, on_delete=models.PROTECT, related_name="player_one")
     player2  = models.ForeignKey(Player, on_delete=models.PROTECT, related_name="player_two")
     score1   = models.IntegerField(default=0)
     score2   = models.IntegerField(default=0)
     elo1     = models.IntegerField()
     elo2     = models.IntegerField()
-    change   = models.IntegerField()
-    date     = models.DateTimeField()
+    change   = models.IntegerField(default=0)
+    date     = models.DateTimeField(auto_now_add=True)
     verified = models.BooleanField(default=False)
 
     def __str__(self):
@@ -31,13 +32,13 @@ class Game(models.Model):
         return output
 
     def p1win(self):
-        if (self.score1 > self.score2):
+        if self.score1 > self.score2:
             return "success"
         else:
             return "danger"
 
     def p2win(self):
-        if (self.score2 > self.score1):
+        if self.score2 > self.score1:
             return "success"
         else:
             return "danger"
@@ -55,3 +56,6 @@ class Game(models.Model):
     def getEloChange2(self):
         tp = "success" if self.change < 0.0 else "danger"
         return format_html('<span class="badge badge-%s">%s</span>' % (tp, str(-self.change)))
+
+    def ended(self):
+        return self.score1 + self.score2 > 0

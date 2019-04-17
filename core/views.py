@@ -10,7 +10,6 @@ from .models import Game, Player
 
 
 def index(request):
-
     latest_game_list = Game.objects.order_by("-date")[:5]
     template = loader.get_template("core/index.html")
 
@@ -29,12 +28,11 @@ def register(request):
             username = form.cleaned_data.get('username')
             raw_password = form.clean_password2()
             user = authenticate(username=username, password=raw_password)
-            login(request,user)
+            login(request, user)
             return redirect('index')
     else:
         form = UserCreationForm()
     return render(request, "registration/register.html", {'form': form})
-
 
 
 def game_data(request, game_id):
@@ -64,9 +62,9 @@ def player_data(request, player_id):
 
     template = loader.get_template("core/player.html")
     context = {
-        'name'       : this_player.name,
-        'elo'        : this_player.elo ,
-        'last_games' : last_games,
-        'user_id'    : this_player.pk
+        'name': this_player.name,
+        'elo': this_player.elo,
+        'last_games': last_games,
+        'user_id': this_player.pk
     }
     return HttpResponse(template.render(context, request))

@@ -25,6 +25,11 @@
             <td>
                 {{ game.score2 }}
             </td>
+
+            {% comment %}
+                TODO create Set Score field if there is no score for p1.
+            {% endcomment %}
+
         </tr>
         <tr>
            <td colspan="2">
@@ -37,8 +42,12 @@
                     <span class="badge badge-success">Verified</span>
                 </td>
             </tr>
+        {% comment %}
+            TODO make Verify button for player2!
+        {% endcomment %}
         {% endif %}
-        {% if game.change %}
+
+        {% if game.ended %}
             <tr>
                 <td>
                     {{ game.newElo1 }} {{ game.getEloChange1 }}
