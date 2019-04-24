@@ -113,3 +113,18 @@ def set_game_score(request, game_id):
             messages.warning(request, "ERROR!" + res)
 
     return game_data(request, game_id)
+
+
+def rating(request):
+    players = Player.objects.all().order_by("-elo")
+
+    template = loader.get_template("core/rating.html")
+
+    context = {
+        'players': players
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def create_game(request):
+    return HttpResponse("TODO")
