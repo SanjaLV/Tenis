@@ -30,7 +30,7 @@
                 </td>
             {% elif game.player1.userID == user %}
                 <td colspan="2">
-                    <form method="POST" action="/core/game/{{ game.pk }}/set_score" class="input-group">
+                    <form method="POST" action="/core/game/{{ game.pk }}/set_score">
                         {% csrf_token %}
                         <div class="input-group">
                             <input type="number" min="0" class="form-control" name="score1">

@@ -1,0 +1,34 @@
+{% extends "core/base.html" %}
+
+{% block title %} Create new game {% endblock %}
+
+{% block main %}
+
+    <form class="form-inline" method="POST" action="/core/create">
+        {% csrf_token %}
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <div class="input-group-text">Your player</div>
+            </div>
+            <select name="player1" class="custom-select" {% if my_players|length == 1 %}readonly{% endif %}>
+                {% for my in my_players %}
+                    <option value="{{ my.pk }}">{{ my.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <div class="input-group-text">Opponent</div>
+            </div>
+            <select name="player2" class="custom-select">
+                {% for p in other %}
+                    <option value="{{ p.pk }}">{{ p.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create game</button>
+    </form>
+
+
+{% endblock %}

@@ -85,6 +85,26 @@ def validate_score(post_data):
     return True, ""
 
 
+def validate_game(post_data, user):
+    if "player1" not in post_data:
+        return False, "There is no player one!"
+    if "player2" not in post_data:
+        return False, "There is no player two!"
+    try:
+        p1 = Player.objects.get(pk=int(post_data["player1"]))
+        p2 = Player.objects.get(pk=int(post_data["player2"]))
+
+        if p1.userID == p2.userID:
+            return False, "You cannot play with yourself!"
+
+        if p1.userID != user:
+            return False, "Player one is not your player!"
+    except ObjectDoesNotExist:
+        return False, "Incorrect player ID!"
+
+    return True, ""
+
+
 def set_game_score(request, game_id):
     if request.method == "POST":
         post_data = request.POST
@@ -92,15 +112,13 @@ def set_game_score(request, game_id):
         if request.user.is_authenticated:
             current_user = request.user
         else:
-            return HttpResponseForbidden(request)
+            return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
         try:
             this_game = Game.objects.get(pk=game_id)
         except ObjectDoesNotExist:
             return HttpResponseForbidden(core.errors.THERE_IS_NO_GAME)
         if this_game.player1.pk != current_user.pk:
             return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
-
-        print(post_data)
 
         flag, res = validate_score(post_data)
 
@@ -127,4 +145,33 @@ def rating(request):
 
 
 def create_game(request):
-    return HttpResponse("TODO")
+
+    if request.user.is_authenticated:
+        current_user = request.user
+    else:
+        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
+    if request.method == "POST":
+        print("HELLO!")
+        post_data = request.POST
+        print(post_data)
+        flag, res = validate_game(post_data, current_user)
+        if flag:
+            p1 = Player.objects.get(pk=int(post_data["player1"]))
+            p2 = Player.objects.get(pk=int(post_data["player2"]))
+            new_game = Game.objects.create(player1=p1, elo1=p1.elo, player2=p2, elo2= p2.elo)
+            messages.success(request, "Game created.")
+            return game_data(request, new_game.pk)
+        else:
+            messages.warning(request, "ERROR!" + res)
+            #Fallthrough
+
+    template = loader.get_template("core/create_game.html")
+    my_players = Player.objects.filter(userID=current_user)
+    other = Player.objects.filter(~Q(userID=current_user))
+    context = {
+        'my_players': my_players,
+        'other': other
+    }
+
+    return HttpResponse(template.render(context, request))
