@@ -59,3 +59,28 @@ class Game(models.Model):
 
     def ended(self):
         return self.score1 + self.score2 > 0
+
+    def calculate(self):
+        p1_should = (self.elo1 - self.elo2) / 400
+        p2_should = (self.elo2 - self.elo1) / 400
+
+        p1_got = (self.score1) / (self.score1 + self.score2)
+        p2_got = (self.score2) / (self.score1 + self.score2)
+
+        change = 40 * (p1_got - p1_should)
+        self.change = round(change)
+        self.save()
+        #TODO call apply change
+
+    def apply_change(self, subtract=False):
+        p1 = self.player1
+        p2 = self.player2
+        if not subtract:
+            p1.elo += self.change
+            p2.elo -= self.change
+        else:
+            p1.elo -= self.change
+            p2.elo -= self.change
+
+        p1.save()
+        p2.save()

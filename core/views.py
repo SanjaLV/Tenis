@@ -125,6 +125,7 @@ def set_game_score(request, game_id):
         if flag:
             this_game.score1 = int(post_data["score1"])
             this_game.score2 = int(post_data["score2"])
+            this_game.calculate()
             this_game.save()
             messages.success(request, "Scores updated.")
         else:
@@ -145,7 +146,6 @@ def rating(request):
 
 
 def create_game(request):
-
     if request.user.is_authenticated:
         current_user = request.user
     else:
@@ -175,3 +175,7 @@ def create_game(request):
     }
 
     return HttpResponse(template.render(context, request))
+
+#TODO Fix problems with multiple Player users
+#TODO Add statistics
+#TODO Add Graph
