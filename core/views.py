@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseForbidden
@@ -176,6 +177,37 @@ def create_game(request):
 
     return HttpResponse(template.render(context, request))
 
+
+def user_data(request, user_id):
+    try:
+        this_user = User.objects.get(pk=user_id)
+    except ObjectDoesNotExist:
+        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
+    user_players = Player.objects.filter(userID=this_user)
+
+    if len(user_players) == 0:
+        return HttpResponse("TODO: create player!")
+    elif len(user_players) == 1:
+        return player_data(request, user_players[0].pk)
+    else:
+        raise NotImplementedError
+
+
+def user_players(request):
+    if request.user.is_authenticated:
+        user = request.user
+        template = loader.get_template("core/my_players.html")
+        my_players = Player.objects.filter(userID=user)
+        context = {
+            'players': my_players
+        }
+        return HttpResponse(template.render(context, request))
+
+    else:
+        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
 #TODO Fix problems with multiple Player users
 #TODO Add statistics
 #TODO Add Graph
+

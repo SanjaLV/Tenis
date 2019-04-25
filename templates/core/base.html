@@ -30,7 +30,8 @@
         <div class="navbar-right">
             <div class="navbar-nav">
                 {% if user.is_authenticated %}
-                    <a class="nav-item nav-link" href="/core/player/{{ user.pk }}">Profile</a>
+                    <a class="nav-item nav-link" href="/core/players">My Players</a>
+                    <a class="nav-item nav-link" href="/core/user/{{ user.pk }}">Profile</a>
                     <a class="nav-item nav-link" href="/accounts/logout">Logout</a>
                 {% else %}
                     <a class="nav-item nav-link" href="/accounts/login">Login</a>
@@ -52,7 +53,7 @@
 {% endif %}
 
 <div class="d-flex justify-content-center">
-    <div class="w-50" style="background-color: #eee;">
+    <div class="w-50">
         {% block main %}
         {% endblock %}
     </div>
