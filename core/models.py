@@ -62,25 +62,31 @@ class Game(models.Model):
 
     def calculate(self):
         import decimal
-        decimal.getcontext().prec = 2
-        p1_should = (self.elo1 - self.elo2) / decimal.Decimal(400)
 
+        print(decimal.Decimal(self.elo1))
+        print(decimal.Decimal(self.elo2))
+
+        p1_should = decimal.Decimal(1) / (decimal.Decimal(1) +
+                                          decimal.Decimal(10)**(decimal.Decimal(self.elo2-self.elo1) / decimal.Decimal(400)))
         p1_got = decimal.Decimal(self.score1) / decimal.Decimal(self.score1 + self.score2)
 
         change = decimal.Decimal(40) * (p1_got - p1_should)
+
+        decimal_ctx = decimal.Context(prec=6, rounding=decimal.ROUND_HALF_UP)
+        change = decimal_ctx.create_decimal(change).quantize(decimal.Decimal(10) ** -2)
         self.change = change
         self.save()
 
     def apply_change(self, subtract=False):
-        p1 = self.player1
-        p2 = self.player2
+        p1 = Player.objects.get(pk=self.player1.pk)
+        p2 = Player.objects.get(pk=self.player2.pk)
+
         if not subtract:
             p1.elo += self.change
             p2.elo -= self.change
         else:
             p1.elo -= self.change
             p2.elo += self.change
-
         p1.save()
         p2.save()
 
@@ -128,3 +134,17 @@ class Statistic(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     games = models.IntegerField(default=0)
     wins = models.IntegerField(default=0)
+
+    def __str__(self):
+        return "%s (%d/%d)" % (self.player.name,
+                               self.wins,
+                               self.games)
+
+    def loses(self):
+        return self.games - self.wins
+
+    def winrate(self):
+        if self.games == 0:
+            return "NA"
+        else:
+            return self.wins / self.games * 100

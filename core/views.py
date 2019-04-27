@@ -63,13 +63,15 @@ def player_data(request, player_id):
     query.add(Q(player2=this_player.pk), Q.OR)
 
     last_games = Game.objects.filter(query).order_by("-date")[:5]
+    stat = Statistic.objects.get(pk=this_player.pk)
 
     template = loader.get_template("core/player.html")
     context = {
         'name': this_player.name,
         'elo': this_player.elo,
         'last_games': last_games,
-        'user_id': this_player.pk
+        'player_user': this_player.user.pk,
+        'stat': stat
     }
     return HttpResponse(template.render(context, request))
 
@@ -119,7 +121,7 @@ def set_game_score(request, game_id):
             this_game = Game.objects.get(pk=game_id)
         except ObjectDoesNotExist:
             return HttpResponseForbidden(core.errors.THERE_IS_NO_GAME)
-        if this_game.player1.pk != current_user.pk:
+        if this_game.player1.user != current_user:
             return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
 
         flag, res = validate_score(post_data)
@@ -127,8 +129,7 @@ def set_game_score(request, game_id):
         if flag:
             this_game.score1 = int(post_data["score1"])
             this_game.score2 = int(post_data["score2"])
-            this_game.calculate()
-            this_game.save()
+            this_game.accept_game()
             messages.success(request, "Scores updated.")
         else:
             messages.warning(request, "ERROR!" + res)
@@ -138,11 +139,14 @@ def set_game_score(request, game_id):
 
 def rating(request):
     players = Player.objects.all().order_by("-elo")
+    stats = []
+    for p in players:
+        stats.append(Statistic.objects.get(pk=p.pk))
 
     template = loader.get_template("core/rating.html")
 
     context = {
-        'players': players
+        'players_stats': zip(players, stats)
     }
     return HttpResponse(template.render(context, request))
 
@@ -198,8 +202,11 @@ def user_players(request):
         user = request.user
         template = loader.get_template("core/my_players.html")
         my_players = Player.objects.filter(user=user)
+        stats = []
+        for p in my_players:
+            stats.append(Statistic.objects.get(pk=p.pk))
         context = {
-            'players': my_players
+            'players_stats': zip(my_players, stats)
         }
         return HttpResponse(template.render(context, request))
 
@@ -214,8 +221,7 @@ def create_player(request):
             player = form.save(commit=False)
             player.user = request.user
             player.save()
-
-            stat = Statistic.objects.get_or_create(pk=player.pk)
+            stat = Statistic.objects.create(pk=player.pk, player=player)
 
             return redirect("player", player_id=player.pk)
     else:

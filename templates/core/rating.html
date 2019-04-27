@@ -19,14 +19,14 @@
         </thead>
         <tbody>
 
-            {% for p in players %}
+            {% for p, s in players_stats %}
                 <tr>
                     <th scope="row">{{ forloop.counter }}</th>
                     <td>{% include "small/player_small.html" with id=p.pk name=p.name %}</td>
-                    <td>{{ p.userID }}</td>
+                    <td>{{ p.user }}</td>
                     <td>{{ p.elo }}</td>
-                    <td>TODO</td>
-                    <td>TODO</td>
+                    <td>{{ s.wins }}</td>
+                    <td>{{ s.games }}</td>
                 </tr>
             {% endfor %}
         </tbody>

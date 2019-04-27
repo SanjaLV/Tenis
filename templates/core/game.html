@@ -28,7 +28,7 @@
                 <td>
                     {{ game.score2 }}
                 </td>
-            {% elif game.player1.userID == user %}
+            {% elif game.player1.user == user %}
                 <td colspan="2">
                     <form method="POST" action="/core/game/{{ game.pk }}/set_score">
                         {% csrf_token %}

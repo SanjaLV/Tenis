@@ -2,11 +2,39 @@
 {% block title %} {{ name }} {% endblock %}
 {% block main %}
     <h1>{{ name }}
-        {% if user.pk == user_id %}
+        {% if player_user == user.pk %}
             <span class="badge badge-primary">you</span>
         {% endif %}
         [{{ elo }}]
     </h1> <br>
+
+    <table class="table table-striped table-bordered text-center table-hover table-sm">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">Wins</th>
+                <td>{{ stat.wins }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Loses</th>
+                <td>{{ stat.loses }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Games</th>
+                <td>{{ stat.games }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Win rate%</th>
+                <td>{{ stat.winrate }}</td>
+            </tr>
+        </tbody>
+    </table>
+
     {% if last_games %}
         <h2>Last games:</h2>
     {% endif %}
