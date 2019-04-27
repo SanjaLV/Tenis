@@ -250,5 +250,39 @@ def create_player(request):
     }
     return HttpResponse(template.render(context, request))
 
-#TODO Add achivments
 
+def reset_game_score(request, game_id):
+    if request.user.is_authenticated:
+        user = request.user
+        try:
+            this_game = Game.objects.get(pk=game_id)
+        except ObjectDoesNotExist:
+            return HttpResponseForbidden(core.errors.THERE_IS_NO_GAME)
+
+        if user != this_game.player1.user and user != this_game.player2.user:
+            return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
+        this_game.cancel_game()
+        return redirect('game', game_id=game_id)
+    else:
+        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
+
+def verify_game(request, game_id):
+    if request.user.is_authenticated:
+        user = request.user
+        try:
+            this_game = Game.objects.get(pk=game_id)
+        except ObjectDoesNotExist:
+            return HttpResponseForbidden(core.errors.THERE_IS_NO_GAME)
+
+        if user != this_game.player2.user:
+            return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
+        this_game.verified = True
+        this_game.save()
+        return redirect('game', game_id=game_id)
+    else:
+        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
+#TODO Add achivments

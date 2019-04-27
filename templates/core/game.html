@@ -54,9 +54,21 @@
                     <span class="badge badge-success">Verified</span>
                 </td>
             </tr>
-        {% comment %}
-            TODO make Verify button for player2!
-        {% endcomment %}
+        {% elif game.ended %}
+            {% if game.player1.user == user or game.player2.user == user %}
+                <tr>
+                    <td colspan="2">
+                        <a class="btn btn-danger" href="/core/game/{{ game.pk }}/reset">Reset score!</a>
+                    </td>
+                </tr>
+            {% endif %}
+            {% if game.player2.user == user %}
+                <tr>
+                    <td colspan="2">
+                        <a class="btn btn-success" href="/core/game/{{ game.pk }}/verify">Verify!</a>
+                    </td>
+                </tr>
+            {% endif %}
         {% endif %}
 
         {% if game.ended %}
