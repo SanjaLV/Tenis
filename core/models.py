@@ -7,8 +7,8 @@ from django.utils.html import format_html
 
 class Player(models.Model):
     name = models.CharField(max_length=30)
-    elo = models.IntegerField(default=800)
-    userID = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    elo = models.DecimalField(max_digits=6, decimal_places=2, default=800)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.name
@@ -19,14 +19,14 @@ class Game(models.Model):
     player2  = models.ForeignKey(Player, on_delete=models.PROTECT, related_name="player_two")
     score1   = models.IntegerField(default=0)
     score2   = models.IntegerField(default=0)
-    elo1     = models.IntegerField()
-    elo2     = models.IntegerField()
-    change   = models.IntegerField(default=0)
+    elo1     = models.DecimalField(max_digits=6, decimal_places=2)
+    elo2     = models.DecimalField(max_digits=6, decimal_places=2)
+    change   = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     date     = models.DateTimeField(auto_now_add=True)
     verified = models.BooleanField(default=False)
 
     def __str__(self):
-        output = "%s(%d) %d - %d %s(%d)" % (self.player1.name, self.elo1,
+        output = "%s(%f) %d - %d %s(%f)" % (self.player1.name, self.elo1,
                                             self.score1, self.score2,
                                             self.player2.name, self.elo2)
         return output
@@ -61,16 +61,15 @@ class Game(models.Model):
         return self.score1 + self.score2 > 0
 
     def calculate(self):
-        p1_should = (self.elo1 - self.elo2) / 400
-        p2_should = (self.elo2 - self.elo1) / 400
+        import decimal
+        decimal.getcontext().prec = 2
+        p1_should = (self.elo1 - self.elo2) / decimal.Decimal(400)
 
-        p1_got = (self.score1) / (self.score1 + self.score2)
-        p2_got = (self.score2) / (self.score1 + self.score2)
+        p1_got = decimal.Decimal(self.score1) / decimal.Decimal(self.score1 + self.score2)
 
-        change = 40 * (p1_got - p1_should)
-        self.change = round(change)
+        change = decimal.Decimal(40) * (p1_got - p1_should)
+        self.change = change
         self.save()
-        #TODO call apply change
 
     def apply_change(self, subtract=False):
         p1 = self.player1
@@ -80,7 +79,52 @@ class Game(models.Model):
             p2.elo -= self.change
         else:
             p1.elo -= self.change
-            p2.elo -= self.change
+            p2.elo += self.change
 
         p1.save()
         p2.save()
+
+    def accept_game(self):
+        self.calculate()
+        self.apply_change()
+
+        p1_stat = Statistic.objects.get(pk=self.player1.pk)
+        p2_stat = Statistic.objects.get(pk=self.player2.pk)
+
+        p1_stat.games += 1
+        p2_stat.games += 1
+
+        if self.score1 > self.score2:
+            p1_stat.wins += 1
+        else:
+            p2_stat.wins += 1
+
+        p1_stat.save()
+        p2_stat.save()
+
+    def cancel_game(self):
+        self.apply_change(subtract=True)
+        p1_stat = Statistic.objects.get(pk=self.player1.pk)
+        p2_stat = Statistic.objects.get(pk=self.player2.pk)
+
+        p1_stat.games -= 1
+        p2_stat.games -= 1
+
+        if self.score1 > self.score2:
+            p1_stat.wins -= 1
+        else:
+            p2_stat.wins -= 1
+
+        p1_stat.save()
+        p2_stat.save()
+
+        self.score1 = 0
+        self.score2 = 0
+        self.change = 0
+        self.save()
+
+
+class Statistic(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    games = models.IntegerField(default=0)
+    wins = models.IntegerField(default=0)

@@ -15,7 +15,7 @@ class PlayerCreation(forms.ModelForm):
         name = self.cleaned_data['name']
 
         if len(name) == 0:
-            raise ValidationError("Name can not be empty")
+            raise ValidationError("Name cannot not be empty")
 
         try:
             player = Player.objects.get(name=name)

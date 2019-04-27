@@ -10,11 +10,11 @@ from django.db.models import Q
 
 import core.errors
 from core.forms import PlayerCreation
-from .models import Game, Player
+from .models import Game, Player, Statistic
 
 
 def index(request):
-    latest_game_list = Game.objects.order_by("-date")[:5]
+    latest_game_list = Game.objects.order_by("-date")[:10]
     template = loader.get_template("core/index.html")
 
     context = {
@@ -96,10 +96,10 @@ def validate_game(post_data, user):
         p1 = Player.objects.get(pk=int(post_data["player1"]))
         p2 = Player.objects.get(pk=int(post_data["player2"]))
 
-        if p1.userID == p2.userID:
+        if p1.user == p2.user:
             return False, "You cannot play with yourself!"
 
-        if p1.userID != user:
+        if p1.user != user:
             return False, "Player one is not your player!"
     except ObjectDoesNotExist:
         return False, "Incorrect player ID!"
@@ -154,9 +154,7 @@ def create_game(request):
         return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
 
     if request.method == "POST":
-        print("HELLO!")
         post_data = request.POST
-        print(post_data)
         flag, res = validate_game(post_data, current_user)
         if flag:
             p1 = Player.objects.get(pk=int(post_data["player1"]))
@@ -169,8 +167,8 @@ def create_game(request):
             #Fallthrough
 
     template = loader.get_template("core/create_game.html")
-    my_players = Player.objects.filter(userID=current_user)
-    other = Player.objects.filter(~Q(userID=current_user))
+    my_players = Player.objects.filter(user=current_user)
+    other = Player.objects.filter(~Q(user=current_user))
     context = {
         'my_players': my_players,
         'other': other
@@ -185,7 +183,7 @@ def user_data(request, user_id):
     except ObjectDoesNotExist:
         return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
 
-    user_players = Player.objects.filter(userID=this_user)
+    user_players = Player.objects.filter(user=this_user)
 
     if len(user_players) == 0:
         return HttpResponse("TODO: create player!")
@@ -199,7 +197,7 @@ def user_players(request):
     if request.user.is_authenticated:
         user = request.user
         template = loader.get_template("core/my_players.html")
-        my_players = Player.objects.filter(userID=user)
+        my_players = Player.objects.filter(user=user)
         context = {
             'players': my_players
         }
@@ -214,8 +212,11 @@ def create_player(request):
         form = PlayerCreation(request.POST)
         if form.is_valid():
             player = form.save(commit=False)
-            player.userID = request.user
+            player.user = request.user
             player.save()
+
+            stat = Statistic.objects.get_or_create(pk=player.pk)
+
             return redirect("player", player_id=player.pk)
     else:
         form = PlayerCreation()
@@ -227,9 +228,8 @@ def create_player(request):
     return HttpResponse(template.render(context, request))
 
 
-#TODO Fix problems with multiple Player users
 #TODO Add statistics
-#TODO Add user-setings (main-player, dark-mode?) <-- is this necessary
+#TODO Elo is Decimal(.2)
 #TODO Add Graph
 #TODO Add achivments
 
