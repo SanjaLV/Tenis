@@ -147,4 +147,4 @@ class Statistic(models.Model):
         if self.games == 0:
             return "NA"
         else:
-            return self.wins / self.games * 100
+            return "%.2f" % (self.wins / self.games * 100)

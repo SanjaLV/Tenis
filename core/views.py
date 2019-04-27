@@ -7,7 +7,6 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseForbidden
 from django.template import loader
 from django.db.models import Q
-from django.utils.datetime_safe import datetime
 
 import core.errors
 from core.forms import PlayerCreation
@@ -207,11 +206,12 @@ def user_data(request, user_id):
     user_players = Player.objects.filter(user=this_user)
 
     if len(user_players) == 0:
-        return HttpResponse("TODO: create player!")
+        messages.warning(request, "Please create new player!")
+        return redirect('user_players')
     elif len(user_players) == 1:
-        return player_data(request, user_players[0].pk)
+        return redirect('player', player_id=user_players[0].pk)
     else:
-        raise NotImplementedError
+        return redirect('user_players')
 
 
 def user_players(request):
