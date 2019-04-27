@@ -1,5 +1,16 @@
 {% extends "core/base.html" %}
 {% block title %} {{ name }} {% endblock %}
+
+
+{% block import %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+{% endblock %}
+
+{% block script %}
+    {% include "js/google_charts.js" with graph_data=graph_data only %}
+{% endblock %}
+
+
 {% block main %}
     <h1>{{ name }}
         {% if player_user == user.pk %}
@@ -42,6 +53,16 @@
         {% include "small/game_small.html" with game=x only %}
     {% endfor %}
     {% comment %}
-        TODO: Achievements list, player graph, last performance.
+        TODO: Achievements list, last performance.
     {% endcomment %}
+
+
+
+{% endblock %}
+
+
+{% block full_size %}
+    {% if graph_data %}
+    <div id="chart_div"></div>
+    {% endif %}
 {% endblock %}

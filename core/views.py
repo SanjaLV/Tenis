@@ -7,9 +7,11 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseForbidden
 from django.template import loader
 from django.db.models import Q
+from django.utils.datetime_safe import datetime
 
 import core.errors
 from core.forms import PlayerCreation
+from core.utils import GraphData
 from .models import Game, Player, Statistic
 
 
@@ -62,7 +64,21 @@ def player_data(request, player_id):
     query = Q(player1=this_player.pk)
     query.add(Q(player2=this_player.pk), Q.OR)
 
-    last_games = Game.objects.filter(query).order_by("-date")[:5]
+    all_games = Game.objects.filter(query).order_by("pk")
+
+    if len(all_games) < 5:
+        last_games = all_games
+    else:
+        last_games = all_games[len(all_games) - 5:]
+
+    graph_data = []
+    graph_data.append(GraphData(0, 800))
+    for g in all_games:
+        if g.player1 == this_player:
+            graph_data.append(GraphData(g.pk, g.newElo1()))
+        else:
+            graph_data.append(GraphData(g.pk, g.newElo2()))
+
     stat = Statistic.objects.get(pk=this_player.pk)
 
     template = loader.get_template("core/player.html")
@@ -71,7 +87,8 @@ def player_data(request, player_id):
         'elo': this_player.elo,
         'last_games': last_games,
         'player_user': this_player.user.pk,
-        'stat': stat
+        'stat': stat,
+        'graph_data': graph_data
     }
     return HttpResponse(template.render(context, request))
 
@@ -233,9 +250,5 @@ def create_player(request):
     }
     return HttpResponse(template.render(context, request))
 
-
-#TODO Add statistics
-#TODO Elo is Decimal(.2)
-#TODO Add Graph
 #TODO Add achivments
 
