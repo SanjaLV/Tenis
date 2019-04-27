@@ -7,7 +7,7 @@ from django.utils.html import format_html
 
 class Player(models.Model):
     name = models.CharField(max_length=30)
-    elo = models.IntegerField()
+    elo = models.IntegerField(default=800)
     userID = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):

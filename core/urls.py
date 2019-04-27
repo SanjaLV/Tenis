@@ -11,5 +11,6 @@ urlpatterns = [
     path('rating', views.rating, name="rating"),
     path('create', views.create_game, name="create_game"),
     path('user/<int:user_id>', views.user_data, name="user"),
-    path('players', views.user_players, name="users_players")
+    path('players', views.user_players, name="users_players"),
+    path('new_player', views.create_player, name="create_player")
 ]

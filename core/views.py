@@ -9,6 +9,7 @@ from django.template import loader
 from django.db.models import Q
 
 import core.errors
+from core.forms import PlayerCreation
 from .models import Game, Player
 
 
@@ -207,7 +208,28 @@ def user_players(request):
     else:
         return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
 
+
+def create_player(request):
+    if request.method == "POST":
+        form = PlayerCreation(request.POST)
+        if form.is_valid():
+            player = form.save(commit=False)
+            player.userID = request.user
+            player.save()
+            return redirect("player", player_id=player.pk)
+    else:
+        form = PlayerCreation()
+
+    template = loader.get_template("core/create_player.html")
+    context = {
+        'form': form
+    }
+    return HttpResponse(template.render(context, request))
+
+
 #TODO Fix problems with multiple Player users
 #TODO Add statistics
+#TODO Add user-setings (main-player, dark-mode?) <-- is this necessary
 #TODO Add Graph
+#TODO Add achivments
 

@@ -1,0 +1,14 @@
+{% extends "core/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Create new player {% endblock %}
+
+{% block main %}
+
+    <form class="form-inline" method="POST" action="/core/new_player">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary">Create player</button>
+    </form>
+
+{% endblock %}
