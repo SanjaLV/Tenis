@@ -1,5 +1,10 @@
 {% extends "core/base.html" %}
 {% block title %} {{ game.player1 }} vs {{ game.player2 }} {% endblock %}
+
+{% block script %}
+    {% include "js/DeleteGame.js" with game_id=game.pk %}
+{% endblock %}
+
 {% block main %}
     <table class="table table-striped table-bordered text-center">
         <tr>
@@ -80,6 +85,14 @@
                     {{ game.newElo2 }} {{ game.getEloChange2 }}
                 </td>
             </tr>
+        {% else %}
+            {% if game.player1.user == user %}
+                <tr>
+                    <td colspan="2">
+                        <div onclick="DeleteGame()" class="btn btn-danger">Delete game</div>
+                    </td>
+                </tr>
+            {% endif %}
         {% endif %}
     </table>
 

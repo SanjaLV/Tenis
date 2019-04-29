@@ -3,9 +3,9 @@ google.charts.setOnLoadCallback(drawBasic);
 
 function drawBasic() {
     var data = new google.visualization.DataTable();
-    data.addColumn('number', 'X');
-    data.addColumn('number', 'Sanja');
-    //data.addColumn('number', 'Alex_2oo8')
+    data.addColumn('number', 'game');
+    data.addColumn('number', 'elo');
+    //data.addColumn('number', 'username')
 
     data.addRows([
         {% for data in graph_data %}

@@ -70,6 +70,7 @@ def player_data(request, player_id):
     else:
         last_games = all_games[len(all_games) - 5:]
 
+    last_games.reverse()
     graph_data = []
     graph_data.append(GraphData(0, 800))
     for g in all_games:
@@ -78,7 +79,7 @@ def player_data(request, player_id):
         else:
             graph_data.append(GraphData(g.pk, g.newElo2()))
 
-    stat = Statistic.objects.get(pk=this_player.pk)
+    stat = Statistic.objects.get(player=this_player)
 
     template = loader.get_template("core/player.html")
     context = {
@@ -132,7 +133,7 @@ def set_game_score(request, game_id):
         if request.user.is_authenticated:
             current_user = request.user
         else:
-            return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+            return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
         try:
             this_game = Game.objects.get(pk=game_id)
         except ObjectDoesNotExist:
@@ -157,7 +158,7 @@ def rating(request):
     players = Player.objects.all().order_by("-elo")
     stats = []
     for p in players:
-        stats.append(Statistic.objects.get(pk=p.pk))
+        stats.append(Statistic.objects.get(player=p))
 
     template = loader.get_template("core/rating.html")
 
@@ -171,7 +172,7 @@ def create_game(request):
     if request.user.is_authenticated:
         current_user = request.user
     else:
-        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+        return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
 
     if request.method == "POST":
         post_data = request.POST
@@ -221,24 +222,28 @@ def user_players(request):
         my_players = Player.objects.filter(user=user)
         stats = []
         for p in my_players:
-            stats.append(Statistic.objects.get(pk=p.pk))
+            stats.append(Statistic.objects.get(player=p))
         context = {
             'players_stats': zip(my_players, stats)
         }
         return HttpResponse(template.render(context, request))
 
     else:
-        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+        return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
 
 
 def create_player(request):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
+    user = request.user
+
     if request.method == "POST":
         form = PlayerCreation(request.POST)
         if form.is_valid():
             player = form.save(commit=False)
-            player.user = request.user
+            player.user = user
             player.save()
-            stat = Statistic.objects.create(pk=player.pk, player=player)
+            stat = Statistic.objects.create(player=player)
 
             return redirect("player", player_id=player.pk)
     else:
@@ -265,7 +270,7 @@ def reset_game_score(request, game_id):
         this_game.cancel_game()
         return redirect('game', game_id=game_id)
     else:
-        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+        return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
 
 
 def verify_game(request, game_id):
@@ -283,6 +288,28 @@ def verify_game(request, game_id):
         this_game.save()
         return redirect('game', game_id=game_id)
     else:
-        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+        return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
+
+
+def delete_game(request, game_id):
+    if request.user.is_authenticated:
+        user = request.user
+        try:
+            this_game = Game.objects.get(pk=game_id)
+        except ObjectDoesNotExist:
+            return HttpResponseForbidden(core.errors.THERE_IS_NO_GAME)
+
+        if this_game.player1.user != user:
+            return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
+        if this_game.ended():
+            messages.error(request, "You cannot delete game with score!")
+            return redirect('game', game_id=game_id)
+        this_game.delete()
+
+        messages.error(request, "Game was deleted!")
+        return index(request)
+
+    return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
 
 #TODO Add achivments

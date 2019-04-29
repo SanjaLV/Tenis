@@ -94,8 +94,8 @@ class Game(models.Model):
         self.calculate()
         self.apply_change()
 
-        p1_stat = Statistic.objects.get(pk=self.player1.pk)
-        p2_stat = Statistic.objects.get(pk=self.player2.pk)
+        p1_stat = Statistic.objects.get(player=self.player1)
+        p2_stat = Statistic.objects.get(player=self.player2)
 
         p1_stat.games += 1
         p2_stat.games += 1
@@ -110,8 +110,8 @@ class Game(models.Model):
 
     def cancel_game(self):
         self.apply_change(subtract=True)
-        p1_stat = Statistic.objects.get(pk=self.player1.pk)
-        p2_stat = Statistic.objects.get(pk=self.player2.pk)
+        p1_stat = Statistic.objects.get(player=self.player1)
+        p2_stat = Statistic.objects.get(player=self.player2)
 
         p1_stat.games -= 1
         p2_stat.games -= 1
