@@ -15,11 +15,32 @@ from .models import Game, Player, Statistic
 
 
 def index(request):
-    latest_game_list = Game.objects.order_by("-date")[:10]
+    page = 1
+    if "page" in request.GET:
+        try:
+            page = int(request.GET["page"])
+        except ValueError:
+            page = 1
+
+    ITEMS_ON_PAGE = 20
+
+    game_count = Game.objects.count()
+
+    max_page = (game_count + ITEMS_ON_PAGE - 1) // ITEMS_ON_PAGE
+
+    page = max(page, 1)
+    page = min(page, max_page)
+
+    i_start = (page - 1) * ITEMS_ON_PAGE
+    i_end   = (page) * ITEMS_ON_PAGE
+    i_end = min(i_end, game_count+1)
+    latest_game_list = Game.objects.order_by("-pk")[i_start:i_end]
     template = loader.get_template("core/index.html")
 
     context = {
         'games': latest_game_list,
+        'page': page,
+        'max_page': max_page
     }
 
     return HttpResponse(template.render(context, request))

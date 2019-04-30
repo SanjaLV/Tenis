@@ -48,10 +48,12 @@
 
     {% if last_games %}
         <h2>Last games:</h2>
+        <table class="table table-striped table-bordered text-center table-hover table-sm">
+            {% for x in last_games %}
+                {% include "small/game_small.html" with game=x only %}
+            {% endfor %}
+        </table>
     {% endif %}
-    {% for x in last_games %}
-        {% include "small/game_small.html" with game=x only %}
-    {% endfor %}
     {% comment %}
         TODO: Achievements list, last performance.
     {% endcomment %}
