@@ -209,8 +209,8 @@ def create_game(request):
             #Fallthrough
 
     template = loader.get_template("core/create_game.html")
-    my_players = Player.objects.filter(user=current_user)
-    other = Player.objects.filter(~Q(user=current_user))
+    my_players = Player.objects.filter(Q(user=current_user) & Q(active=True)).order_by("name")
+    other = Player.objects.filter(~Q(user=current_user) & Q(active=True)).order_by("name")
     context = {
         'my_players': my_players,
         'other': other
@@ -275,6 +275,29 @@ def create_player(request):
         'form': form
     }
     return HttpResponse(template.render(context, request))
+
+
+def activate_player(request, player_id):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
+    user = request.user
+    try:
+        player = Player.objects.get(pk=player_id)
+    except ObjectDoesNotExist:
+        return HttpResponseForbidden(core.errors.THERE_IS_NO_PLAYER)
+
+    if player.user != user:
+        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
+    player.active = not player.active
+
+    if player.active:
+        messages.success(request, player.name + " activated!")
+    else:
+        messages.success(request, player.name + " deactivated!")
+
+    player.save()
+    return redirect('user_players')
 
 
 def reset_game_score(request, game_id):

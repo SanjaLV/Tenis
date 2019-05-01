@@ -9,6 +9,7 @@ class Player(models.Model):
     name = models.CharField(max_length=30)
     elo = models.DecimalField(max_digits=6, decimal_places=2, default=800)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    active   = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name

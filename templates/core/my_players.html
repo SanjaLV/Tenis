@@ -23,7 +23,11 @@
                     <td>{{ p.elo }}</td>
                     <td>{{ s.wins }}</td>
                     <td>{{ s.games }}</td>
-                    <td>TODO</td>
+                    {% if p.active %}
+                        <td><a href="/core/player/{{ p.pk }}/enable" class="btn btn-warning">Disable</a> </td>
+                    {% else %}
+                        <td><a href="/core/player/{{ p.pk }}/enable" class="btn btn-info">Enable</a></td>
+                    {% endif %}
                 </tr>
             {% endfor %}
         </tbody>
