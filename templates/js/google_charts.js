@@ -2,7 +2,7 @@ google.charts.load('current', {packages: ['corechart', 'line']});
 google.charts.setOnLoadCallback(drawBasic);
 
 function drawBasic() {
-    var data = new google.visualization.DataTable();
+    let data = new google.visualization.DataTable();
     data.addColumn('number', 'game');
     data.addColumn('number', 'elo');
     //data.addColumn('number', 'username')
@@ -20,7 +20,7 @@ function drawBasic() {
     ]);
 
     let options = {
-        curveType: 'function',
+        //curveType: 'function',
         'width':'100%',
         'height': 500,
 
@@ -32,7 +32,7 @@ function drawBasic() {
         }
     };
 
-    var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+    let chart = new google.visualization.LineChart(document.getElementById('chart_div'));
     /*
     function selectHandler() {
         var selectedItem = chart.getSelection()[0];

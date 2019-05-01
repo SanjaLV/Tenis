@@ -1,0 +1,47 @@
+{% extends "core/base.html" %}
+{% comment %}
+
+    Template Graph.html
+
+    players - list with pair (name, pk)
+    graph_data - list with touples (p1, p2, change)
+
+{% endcomment %}
+
+
+{% block title %} Custom graphs {% endblock %}
+
+{% block import %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+{% endblock %}
+
+{% block script %}
+    {% include "js/multi_chart.js" with players=players graph_data=graph_data only %}
+{% endblock %}
+
+{% block main %}
+
+    <div class="input-group inline" id="player_selector">
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <table>
+            <td>
+                <div class="btn btn-secondary" onclick="SetAll()">Set all</div>
+            </td>
+            <td>
+                <div class="btn btn-primary" onclick="DrawGraph()">Draw</div>
+            </td>
+            <td>
+                <div class="btn btn-secondary" onclick="ResetAll()">Reset all</div>
+            </td>
+        </table>
+    </div>
+
+{% endblock %}
+
+{% block full_size %}
+    {% if graph_data %}
+        <div id="chart_div"></div>
+    {% endif %}
+{% endblock %}

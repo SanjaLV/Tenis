@@ -385,4 +385,24 @@ def delete_game(request, game_id):
 
     return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
 
+
+def graphs(request):
+    template = loader.get_template("core/graphs.html")
+
+    players = []
+    for x in Player.objects.all():
+        players.append((x.name, x.pk))
+
+    games = []
+
+    for x in Game.objects.all():
+        games.append((x.player1.pk, x.player2.pk, x.change))
+
+    context = {
+        'players': players,
+        'graph_data': games
+    }
+
+    return HttpResponse(template.render(context, request))
+
 #TODO Add achivments

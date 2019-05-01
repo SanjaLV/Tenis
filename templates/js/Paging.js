@@ -1,9 +1,13 @@
+// {% comment %}
 // Template Paging.js
+//
 // url -> url/?page=X
 // page -> current page number
 // max_page -> maximal page number
 //
-// Need to user NODE with page-menu
+// HTML elements we may use
+// page-menu - to place pages inside
+// {% endcomment %}
 
 const base_url = "/core{{url}}";
 
