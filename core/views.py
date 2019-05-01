@@ -277,6 +277,35 @@ def create_player(request):
     return HttpResponse(template.render(context, request))
 
 
+def edit_player(request, player_id):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
+    user = request.user
+    try:
+        player = Player.objects.get(pk=player_id)
+    except ObjectDoesNotExist:
+        return HttpResponseForbidden(core.errors.THERE_IS_NO_PLAYER)
+
+    if player.user != user:
+        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
+    if request.method == "POST":
+        form = PlayerCreation(request.POST)
+        if form.is_valid():
+            player.name = form.cleaned_data["name"]
+            player.save()
+            messages.success(request, "Player name is changed to " + player.name)
+            return redirect('user_players')
+    else:
+        form = PlayerCreation(initial={'name': player.name})
+
+    template = loader.get_template("core/edit_player.html")
+    context = {
+        'form': form,
+        'pk': player.pk
+    }
+    return HttpResponse(template.render(context, request))
+
 def activate_player(request, player_id):
     if not request.user.is_authenticated:
         return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)

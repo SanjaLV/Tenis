@@ -12,7 +12,7 @@
                 <th scope="col">Elo</th>
                 <th scope="col">Wins</th>
                 <th scope="col">Games</th>
-                <th scope="col">Status</th>
+                <th scope="col" colspan="2">Controls</th>
             </tr>
         </thead>
         <tbody>
@@ -28,6 +28,7 @@
                     {% else %}
                         <td><a href="/core/player/{{ p.pk }}/enable" class="btn btn-info">Enable</a></td>
                     {% endif %}
+                    <td><a href="/core/player/{{ p.pk }}/edit" class="btn btn-primary">Edit</a></td>
                 </tr>
             {% endfor %}
         </tbody>
