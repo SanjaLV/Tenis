@@ -118,11 +118,16 @@ google.charts.load('current', {packages: ['corechart', 'line']});
 function DrawGraph() {
     let data = new google.visualization.DataTable();
 
+    let checked = [];
+    for (let i = 0; i < player_count; i++) {
+        checked.push(document.getElementById("checkbox_" + player_pks[i].toString()).checked);
+    }
+
     //Create Game number column
     data.addColumn('number', 'game');
     //Create all players column
     for (let i = 0; i < player_count; i++) {
-        if (document.getElementById("checkbox_" + player_pks[i].toString()).checked === true) {
+        if (checked[i]) {
             data.addColumn('number', player_names[i]);
         }
     }
@@ -133,7 +138,7 @@ function DrawGraph() {
         let this_row = [];
         this_row.push(i + 1);
         for (let j = 0; j < player_count; j++) {
-            if (document.getElementById("checkbox_" + player_pks[j].toString()).checked === true) {
+            if (checked[j]) {
                 this_row.push(precalc[i][j]);
             }
         }

@@ -93,7 +93,8 @@ def player_data(request, player_id):
 
     last_games.reverse()
     graph_data = []
-    graph_data.append(GraphData(0, 800))
+    graph_data.append(GraphData(all_games[0].pk - 1, 800))
+
     for g in all_games:
         if g.player1 == this_player:
             graph_data.append(GraphData(g.pk, g.newElo1()))
@@ -305,6 +306,7 @@ def edit_player(request, player_id):
         'pk': player.pk
     }
     return HttpResponse(template.render(context, request))
+
 
 def activate_player(request, player_id):
     if not request.user.is_authenticated:
