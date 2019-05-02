@@ -91,10 +91,11 @@ function CreateDivWithCheckBox(player, checkbox_id) {
     input.id = checkbox_id;
     divcheck.appendChild(input);
     div.appendChild(divcheck);
-    let divtext = document.createElement("div");
-    divtext.classList.add("input-group-text");
-    divtext.innerText = player;
-    div.appendChild(divtext);
+    let label = document.createElement("label");
+    label.classList.add("input-group-text");
+    label.innerText = player;
+    label.setAttribute("for", checkbox_id);
+    div.appendChild(label);
     return div;
 }
 
@@ -122,6 +123,14 @@ function DrawGraph() {
     for (let i = 0; i < player_count; i++) {
         checked.push(document.getElementById("checkbox_" + player_pks[i].toString()).checked);
     }
+
+    let checked_cnt = 0;
+    for (let i = 0; i < player_count; i++) {
+        if (checked[i]) checked_cnt += 1;
+    }
+    if (checked_cnt === 0)
+        return;
+
 
     //Create Game number column
     data.addColumn('number', 'game');
