@@ -8,18 +8,20 @@ from core.models import Player, Game, Statistic
 
 TODO_user = None
 
+
 def normalize_name(name):
     """Capitalize all words in name."""
     words = name.split()
     res = ""
     for w in words:
-        res = res + " " + w.capitalize()
+        if res != "":
+            res += " "
+        res += w.capitalize()
     return res
 
 
 def get_date(s):
     """Returns date object from string."""
-    print(s)
     if s.find(".") != -1:
         # DD.MM.YYYY(.) format
         args = s.split(".")

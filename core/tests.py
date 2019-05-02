@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 # Create your tests here.
-
+from core.management.commands.import_games import normalize_name
 from .models import Game, Player
 
 
@@ -28,3 +28,11 @@ class TestGame(TestCase):
         self.assertTrue(Game.objects.get(pk=1).ended())
         self.assertFalse(Game.objects.get(pk=2).ended())
         self.assertFalse(Game.objects.get(pk=3).ended())
+
+
+class TestNormalizeName(TestCase):
+    def test_normalize_name(self):
+        self.assertEqual(normalize_name(" AaA bB"), "Aaa Bb")
+        self.assertEqual(normalize_name("   A A a A"), "A A A A")
+        self.assertEqual(normalize_name("sanja"), "Sanja")
+        self.assertEqual(normalize_name(" Edgars K"), "Edgars K")
