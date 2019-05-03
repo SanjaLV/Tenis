@@ -93,7 +93,8 @@ def player_data(request, player_id):
 
     last_games.reverse()
     graph_data = []
-    graph_data.append(GraphData(all_games[0].pk - 1, 800))
+    if len(all_games) > 0:
+        graph_data.append(GraphData(all_games[0].pk - 1, 800))
 
     for g in all_games:
         if g.player1 == this_player:
