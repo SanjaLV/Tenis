@@ -180,3 +180,10 @@ class PlayerAchievement(models.Model):
             return self.player.name + ">" + self.achievement.name
         else:
             return self.player.name + ">" + self.achievement.name + "[" + str(self.progress) + "]"
+
+    def max_progress(self):
+        from core.apps import plugins
+        return plugins[self.achievement.pk].info.max_progress
+
+    def progress_percentage(self):
+        return "%.2f" % (self.progress / self.max_progress() * 100)

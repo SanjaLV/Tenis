@@ -46,7 +46,8 @@ class WinGames(Achievement):
 
     def register(self):
         info = AchievementsInfo(winner=True,
-                                save_progress=True)
+                                save_progress=True,
+                                max_progress=self.games_to_win)
         return info
 
     def progress(self, data):

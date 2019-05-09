@@ -1,0 +1,60 @@
+{% extends "core/base.html" %}
+
+{% comment %}
+    players_achievements template
+
+    player - player
+    finished - list of finished achievements
+    in_progress - list of achievements with progress
+
+{% endcomment %}
+
+{% block title %}
+    {{ player.name }}'s achievements
+{% endblock %}
+
+{% block main %}
+
+    {% if finished %}
+    <table class="table table-striped table-bordered text-center">
+        <thread>Completed achievements</thread>
+        {% for ach in finished %}
+            <tr>
+                <td> <a href="/core/achievement/{{ ach.achievement.pk }}">{{ ach.achievement.pk }}</a></td>
+                <td colspan="2">{{ ach.achievement.name }}</td>
+                <td>{{ ach.date}}</td>
+            </tr>
+            <tr>
+                <td colspan="4">{{ ach.achievement.desc }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    <br>
+
+    {% if in_progress %}
+    <table class="table table-striped table-bordered text-center">
+        <thread>Achievements in progress</thread>
+        {% for ach in in_progress %}
+            <tr>
+                <td> <a href="/core/achievement/{{ ach.achievement.pk }}">{{ ach.achievement.pk }}</a></td>
+                <td colspan="2">{{ ach.achievement.name }}</td>
+            </tr>
+            <tr>
+                <td colspan="4">{{ ach.achievement.desc }}</td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: {{ ach.progress_percentage }}%" aria-valuenow="{{ ach.progress }}" aria-valuemin="0" aria-valuemax="{{ ach.max_progress }}"></div>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+
+
+{% endblock %}

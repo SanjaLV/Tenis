@@ -32,9 +32,6 @@ def apply_plugin(plugin, achievement, player, stat, last_games, is_winner):
     except ObjectDoesNotExist:
         progress = 0
 
-    if not plugin.info.statistic:
-        stat = None
-
     games = last_games[:plugin.info.prev_games]
 
     save = plugin.info.save_progress
@@ -213,6 +210,7 @@ def player_data(request, player_id):
 
     template = loader.get_template("core/player.html")
     context = {
+        'player': this_player,
         'name': this_player.name,
         'elo': this_player.elo,
         'last_games': last_games,
@@ -437,6 +435,40 @@ def activate_player(request, player_id):
 
     player.save()
     return redirect('user_players')
+
+
+def player_achievements(request, player_id):
+    start_time = time.time()
+
+    try:
+        player = Player.objects.get(pk=player_id)
+    except ObjectDoesNotExist:
+        return HttpResponseForbidden(core.errors.THERE_IS_NO_PLAYER)
+
+    all_list = PlayerAchievement.objects.filter(player_id=player)
+    print(all_list)
+
+    complete_list = all_list.filter(finished=True)
+    unfinished_list = all_list.filter(finished=False).order_by("-progress")
+
+    print(complete_list)
+    print(unfinished_list)
+
+    end_time = time.time()
+    server_time = ('Done in {:.3f} ms'.format((end_time - start_time) * 1000.0))
+
+    context = {
+        'player': player,
+        'finished': complete_list,
+        'in_progress': unfinished_list,
+        'render_time': server_time
+    }
+    template = loader.get_template("core/players_achievements.html")
+    return HttpResponse(template.render(context, request))
+
+
+
+
 
 
 def reset_game_score(request, game_id):
