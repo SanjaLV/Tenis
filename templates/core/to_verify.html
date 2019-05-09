@@ -1,0 +1,80 @@
+{% extends "core/base.html" %}
+
+{% comment %}
+
+    to_validate.html
+
+    games - list of games that is not validated
+
+{% endcomment %}
+
+{% block title %} List of games to verify {% endblock %}
+
+
+{% block main %}
+
+
+    {% if games %}
+
+        <h1>There is somthing</h1>
+
+        <table class="table table-striped table-bordered text-center table-hover table-sm">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Date</th>
+                <th scope="col">Rating change</th>
+                <th scope="col">Player name</th>
+                <th scope="col">Score</th>
+                <th scope="col">Player name</th>
+                <th scope="col">Rating change</th>
+            </tr>
+        </thead>
+        {% for game in games %}
+            <tr>
+                <td>
+                    <a href="/core/game/{{ game.pk }}">{{ game.pk }}</a>
+                </td>
+                <td>
+                    {{ game.date|date:'Y-m-d' }}
+                </td>
+                <td>
+                    ({{ game.elo1 }})→({{ game.newElo1 }})
+                </td>
+                <td>
+                    {% if game.ended %}
+                        {% include "small/player_small.html" with id=game.player1.pk name=game.player1.name color=game.player1_badge only %}
+                    {% else %}
+                        {% include "small/player_small.html" with id=game.player1.pk name=game.player1.name only %}
+                    {% endif %}
+                </td>
+                <td>
+                    {{ game.score1 }} : {{ game.score2 }}
+                </td>
+                <td>
+                    {% if game.ended %}
+                        {% include "small/player_small.html" with id=game.player2.pk name=game.player2.name color=game.player2_badge only %}
+                    {% else %}
+                        {% include "small/player_small.html" with id=game.player2.pk name=game.player2.name only %}
+                    {% endif %}
+                </td>
+                <td>
+                    ({{ game.elo2 }})→({{ game.newElo2 }})
+                </td>
+                <td>
+                    <a class="btn btn-success" href="/core/game/{{ game.pk }}/verify">Verify!</a>
+                </td>
+                <td>
+                    <a class="btn btn-danger" href="/core/game/{{ game.pk }}/reset">Reset score!</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    {% else %}
+
+        <h1>Nothing to verify!</h1>
+
+    {% endif %}
+
+{% endblock %}

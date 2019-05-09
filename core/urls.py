@@ -18,5 +18,6 @@ urlpatterns = [
     path('user/<int:user_id>', views.user_data, name="user"),
     path('players', views.user_players, name="user_players"),
     path('new_player', views.create_player, name="create_player"),
-    path('graphs', views.graphs, name="graphs")
+    path('graphs', views.graphs, name="graphs"),
+    path('to_verify', views.not_verified_games, name="not_verified_games")
 ]

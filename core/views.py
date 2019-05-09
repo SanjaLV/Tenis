@@ -368,6 +368,9 @@ def verify_game(request, game_id):
         if user != this_game.player2.user:
             return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
 
+        if not this_game.ended():
+            return HttpResponseForbidden(core.errors.GAME_NOT_ENDED)
+
         this_game.verified = True
         this_game.save()
         return redirect('game', game_id=game_id)
@@ -415,5 +418,31 @@ def graphs(request):
     }
 
     return HttpResponse(template.render(context, request))
+
+
+def not_verified_games(request):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
+    else:
+        user = request.user
+
+    user_players = Player.objects.filter(user=user)
+
+    for pl in user_players:
+        print(pl)
+
+    if len(user_players) != 0:
+        my_player_q = Q(player2__user__pk=user.pk)
+        games_to_validate = Game.objects.filter(verified=False).filter(my_player_q)
+    else:
+        games_to_validate = None
+
+    context = {
+        'games': games_to_validate
+    }
+    template = loader.get_template("core/to_verify.html")
+
+    return HttpResponse(template.render(context, request))
+
 
 # TODO Add achivments
