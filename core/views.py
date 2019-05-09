@@ -92,6 +92,14 @@ def player_data(request, player_id):
         last_games = all_games[len(all_games) - 5:]
 
     last_games.reverse()
+    # make sure this_player is always displayed as player1
+    for i in range(len(last_games)):
+        if last_games[i].player1 != this_player:
+            last_games[i].player1, last_games[i].player2 = last_games[i].player2, last_games[i].player1
+            last_games[i].change *= -1
+            last_games[i].score1, last_games[i].score2 = last_games[i].score2, last_games[i].score1
+            last_games[i].elo1, last_games[i].elo2 = last_games[i].elo2, last_games[i].elo1
+
     graph_data = []
     if len(all_games) > 0:
         graph_data.append(GraphData(all_games[0].pk - 1, 800))
@@ -203,12 +211,12 @@ def create_game(request):
         if flag:
             p1 = Player.objects.get(pk=int(post_data["player1"]))
             p2 = Player.objects.get(pk=int(post_data["player2"]))
-            new_game = Game.objects.create(player1=p1, elo1=p1.elo, player2=p2, elo2= p2.elo)
+            new_game = Game.objects.create(player1=p1, elo1=p1.elo, player2=p2, elo2=p2.elo)
             messages.success(request, "Game created.")
             return game_data(request, new_game.pk)
         else:
             messages.warning(request, "ERROR!" + res)
-            #Fallthrough
+            # Fallthrough
 
     template = loader.get_template("core/create_game.html")
     my_players = Player.objects.filter(Q(user=current_user) & Q(active=True)).order_by("name")
@@ -408,4 +416,4 @@ def graphs(request):
 
     return HttpResponse(template.render(context, request))
 
-#TODO Add achivments
+# TODO Add achivments

@@ -29,7 +29,7 @@ def get_date(s):
             args.pop()
         args.reverse()
     else:
-        #YYYY-MM-DD format
+        # YYYY-MM-DD format
         args = s.split("-")
 
     print(args)
