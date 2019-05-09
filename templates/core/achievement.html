@@ -1,0 +1,71 @@
+{% extends "core/base.html" %}
+
+{% comment %}
+    achievement template
+
+    ach - this achievement
+    players_achievements - player_ach that compiled it
+    count - count of players_achievements
+    players_count - totall player_count
+
+{% endcomment %}
+
+{% block title %}
+    {{ ach.name }}
+{% endblock %}
+
+{% block main %}
+
+    <h1>{{ ach.name }}</h1>
+    <h2>{{ ach.desc }}</h2>
+    <h2>{{ count }} out of {{ players_count }} players have it!</h2>
+
+    <table class="table table-striped table-bordered text-center table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Rank</th>
+                <th scope="col">Player</th>
+                <th scope="col">Date</th>
+            </tr>
+        </thead>
+        <tbody>
+
+
+            {% if count >= 1 %}
+                <tr>
+                    <td><h2>🥇</h2></td>
+                    <td>{{ players_achievements.0.player.name }}</td>
+                    <td>{{ players_achievements.0.date }}</td>
+                </tr>
+            {% endif %}
+
+            {% if count >= 2 %}
+                <tr>
+                    <td><h2>🥈</h2></td>
+                    <td>{{ players_achievements.1.player.name }}</td>
+                    <td>{{ players_achievements.1.date }}</td>
+                </tr>
+            {% endif %}
+
+            {% if count >= 3 %}
+                <tr>
+                    <td><h2>🥉</h2></td>
+                    <td>{{ players_achievements.2.player.name }}</td>
+                    <td>{{ players_achievements.2.date }}</td>
+                </tr>
+            {% endif %}
+
+            {% for pa in players_achievements %}
+                {% if forloop.counter > 3 %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ pa.player.name }}</td>
+                    <td>{{ pa.date }}</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+{% endblock %}

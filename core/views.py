@@ -125,8 +125,6 @@ def index(request):
     latest_game_list = Game.objects.order_by("-pk")[i_start:i_end]
     template = loader.get_template("core/index.html")
 
-    async_progress_achievement(latest_game_list[0])
-
     end_time = time.time()
     server_time = ('Done in {:.3f} ms'.format((end_time - start_time) * 1000.0))
 
@@ -467,10 +465,6 @@ def player_achievements(request, player_id):
     return HttpResponse(template.render(context, request))
 
 
-
-
-
-
 def reset_game_score(request, game_id):
     if request.user.is_authenticated:
         user = request.user
@@ -585,5 +579,24 @@ def not_verified_games(request):
 
     return HttpResponse(template.render(context, request))
 
+
+def achievement_info(request, a_id):
+    try:
+        ach = Achievement.objects.get(pk=a_id)
+    except ObjectDoesNotExist:
+        return HttpResponseForbidden(core.errors.THERE_IS_NO_ACHIEVEMENT)
+
+    players_that_have_it = PlayerAchievement.objects.filter(finished=True, achievement=ach).order_by("date")
+
+    template = loader.get_template("core/achievement.html")
+
+    context = {
+        'ach': ach,
+        'players_achievements': players_that_have_it,
+        'count': len(players_that_have_it),
+        'players_count': Player.objects.all().count()
+    }
+
+    return HttpResponse(template.render(context, request))
 
 # TODO Add achivments
