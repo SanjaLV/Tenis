@@ -142,6 +142,7 @@ class Statistic(models.Model):
     games = models.IntegerField(default=0)
     wins = models.IntegerField(default=0)
     streak = models.IntegerField(default=0)
+    achievements_count = models.IntegerField(default=0)
 
     def __str__(self):
         return "%s (%d/%d)" % (self.player.name,
@@ -156,3 +157,17 @@ class Statistic(models.Model):
             return "NA"
         else:
             return "%.2f" % (self.wins / self.games * 100)
+
+
+class Achievement(models.Model):
+    name = models.CharField(max_length=30)
+    desc = models.CharField(max_length=200)
+    # plugin_name = do i need it?
+
+
+class PlayerAchievement(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)
+    finished = models.BooleanField(default=False)
+    progress = models.IntegerField(default=0)
+    date = models.DateTimeField(null=True)

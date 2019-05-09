@@ -437,6 +437,15 @@ def not_verified_games(request):
     else:
         games_to_validate = None
 
+    # make sure player1 is this user's player
+    for i in range(len(games_to_validate)):
+        if games_to_validate[i].player1.user != user:
+            games_to_validate[i].player1, games_to_validate[i].player2 = games_to_validate[i].player2, games_to_validate[i].player1
+            games_to_validate[i].change *= -1
+            games_to_validate[i].score1, games_to_validate[i].score2 = games_to_validate[i].score2, games_to_validate[i].score1
+            games_to_validate[i].elo1, games_to_validate[i].elo2 = games_to_validate[i].elo2, games_to_validate[i].elo1
+
+
     context = {
         'games': games_to_validate
     }
