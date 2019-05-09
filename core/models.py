@@ -164,6 +164,9 @@ class Achievement(models.Model):
     desc = models.CharField(max_length=200)
     # plugin_name = do i need it?
 
+    def __str__(self):
+        return self.name
+
 
 class PlayerAchievement(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
@@ -171,3 +174,9 @@ class PlayerAchievement(models.Model):
     finished = models.BooleanField(default=False)
     progress = models.IntegerField(default=0)
     date = models.DateTimeField(null=True)
+
+    def __str__(self):
+        if self.finished:
+            return self.player.name + ">" + self.achievement.name
+        else:
+            return self.player.name + ">" + self.achievement.name + "[" + str(self.progress) + "]"

@@ -1,3 +1,5 @@
+import time
+
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
@@ -7,14 +9,103 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseForbidden
 from django.template import loader
 from django.db.models import Q
+from django.utils.datetime_safe import datetime
 
 import core.errors
 from core.forms import PlayerCreation
+
 from core.utils import GraphData
-from .models import Game, Player, Statistic
+from .models import Game, Player, Statistic, Achievement, PlayerAchievement
+
+from core.apps import plugins
+
+
+def apply_plugin(plugin, achievement, player, stat, last_games, is_winner):
+    from core.plugins.plugin_interface import AchievementsData, Status
+
+    # Already have Achievement
+    try:
+        ach = PlayerAchievement.objects.get(player=player, achievement=achievement)
+        if ach.finished:
+            return
+        progress = ach.progress
+    except ObjectDoesNotExist:
+        progress = 0
+
+    if not plugin.info.statistic:
+        stat = None
+
+    games = last_games[:plugin.info.prev_games]
+
+    save = plugin.info.save_progress
+
+    if not save:
+        progress = None
+
+    data = AchievementsData(progress=progress,
+                            is_winner=is_winner,
+                            prev_games=games,
+                            statistic=stat)
+
+    flag, progress = plugin.progress(data)
+
+    if flag == Status.FINISHED:
+        new_ach, ignore = PlayerAchievement.objects.get_or_create(player=player, achievement=achievement)
+        new_ach.finished = True
+        new_ach.date = datetime.now()
+        new_ach.save()
+        stat.achievements_count += 1
+        stat.save()
+        return
+    elif flag == Status.NOTHING:
+        pass
+    elif flag == Status.SAVE:
+        new_ach, ignore = PlayerAchievement.objects.get_or_create(player=player, achievement=achievement)
+        new_ach.progress = progress
+        new_ach.save()
+    else:
+        assert False
+
+
+def progress_achievement(game):
+    if not game.ended():
+        return
+
+    # need to sleep here, otherwise there will be no response until we finish this task
+    time.sleep(0.5)
+
+    all_achievements = Achievement.objects.all()
+
+    p1stat = Statistic.objects.get(player=game.player1.pk)
+    p2stat = Statistic.objects.get(player=game.player2.pk)
+
+    p1games = Game.objects.filter(Q(player1=game.player1) | Q(player2=game.player2)).order_by("-pk")
+    p2games = Game.objects.filter(Q(player1=game.player1) | Q(player2=game.player2)).order_by("-pk")
+
+    for achivm in all_achievements:
+        if plugins[achivm.pk].info.winner:
+            if game.player1_win:
+                apply_plugin(plugins[achivm.pk], achivm, game.player1, p1stat, p1games, True)
+            else:
+                apply_plugin(plugins[achivm.pk], achivm, game.player2, p2stat, p2games, True)
+        if plugins[achivm.pk].info.loser:
+            if game.player1_win:
+                apply_plugin(plugins[achivm.pk], achivm, game.player2, p2stat, p2games, False)
+            else:
+                apply_plugin(plugins[achivm.pk], achivm, game.player1, p1stat, p1games, False)
+
+
+def async_progress_achievement(game):
+    import threading
+    t = threading.Thread(target=progress_achievement, args=(game,))
+    t.setDaemon(True)
+    t.start()
+    return
 
 
 def index(request):
+    start_time = time.time()
+
     page = 1
     if "page" in request.GET:
         try:
@@ -37,11 +128,19 @@ def index(request):
     latest_game_list = Game.objects.order_by("-pk")[i_start:i_end]
     template = loader.get_template("core/index.html")
 
+    async_progress_achievement(latest_game_list[0])
+
+    end_time = time.time()
+    server_time = ('Done in {:.3f} ms'.format((end_time - start_time) * 1000.0))
+
     context = {
         'games': latest_game_list,
         'page': page,
-        'max_page': max_page
+        'max_page': max_page,
+        'render_time': server_time
     }
+
+
 
     return HttpResponse(template.render(context, request))
 
@@ -373,6 +472,7 @@ def verify_game(request, game_id):
 
         this_game.verified = True
         this_game.save()
+        async_progress_achievement(this_game)
         return redirect('game', game_id=game_id)
     else:
         return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
