@@ -12,7 +12,7 @@
         </td>
         <td>
             {% if game.ended %}
-                {% include "small/player_small.html" with id=game.player1.pk name=game.player1.name color=game.p1win only %}
+                {% include "small/player_small.html" with id=game.player1.pk name=game.player1.name color=game.player1_badge only %}
             {% else %}
                 {% include "small/player_small.html" with id=game.player1.pk name=game.player1.name only %}
             {% endif %}
@@ -22,7 +22,7 @@
         </td>
         <td>
             {% if game.ended %}
-                {% include "small/player_small.html" with id=game.player2.pk name=game.player2.name color=game.p2win only %}
+                {% include "small/player_small.html" with id=game.player2.pk name=game.player2.name color=game.player2_badge only %}
             {% else %}
                 {% include "small/player_small.html" with id=game.player2.pk name=game.player2.name only %}
             {% endif %}

@@ -32,17 +32,23 @@ class Game(models.Model):
                                             self.player2.name, self.elo2)
         return output
 
-    def p1win(self):
+    def player1_badge(self):
         if self.score1 > self.score2:
             return "success"
         else:
             return "danger"
 
-    def p2win(self):
+    def player2_badge(self):
         if self.score2 > self.score1:
             return "success"
         else:
             return "danger"
+
+    def player1_win(self):
+        return self.score1 > self.score2
+
+    def player2_win(self):
+        return self.score2 > self.score1
 
     def newElo1(self):
         return self.elo1 + self.change
@@ -135,6 +141,7 @@ class Statistic(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     games = models.IntegerField(default=0)
     wins = models.IntegerField(default=0)
+    streak = models.IntegerField(default=0)
 
     def __str__(self):
         return "%s (%d/%d)" % (self.player.name,

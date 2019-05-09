@@ -14,8 +14,10 @@ class TestGame(TestCase):
         Game.objects.create(player1=pl, player2=pl, elo1=1000, elo2=500, change=-7)
 
     def test_win(self):
-        self.assertEqual(Game.objects.get(pk=1).p1win(), "danger")
-        self.assertEqual(Game.objects.get(pk=1).p2win(), "success")
+        self.assertEqual(Game.objects.get(pk=1).player1_badge(), "danger")
+        self.assertEqual(Game.objects.get(pk=1).player2_badge(), "success")
+        self.assertFalse(Game.objects.get(pk=1).player1_win())
+        self.assertTrue(Game.objects.get(pk=1).player2_win())
 
     def test_elo(self):
         self.assertEqual(Game.objects.get(pk=2).newElo1(), Game.objects.get(pk=2).elo1 + Game.objects.get(pk=2).change)
