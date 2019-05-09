@@ -70,9 +70,6 @@ class Game(models.Model):
     def calculate(self):
         import decimal
 
-        print(decimal.Decimal(self.elo1))
-        print(decimal.Decimal(self.elo2))
-
         p1_should = decimal.Decimal(1) / (decimal.Decimal(1) +
                                           decimal.Decimal(10)**(decimal.Decimal(self.elo2-self.elo1) / decimal.Decimal(400)))
         p1_got = decimal.Decimal(self.score1) / decimal.Decimal(self.score1 + self.score2)

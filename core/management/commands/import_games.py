@@ -32,8 +32,6 @@ def get_date(s):
         # YYYY-MM-DD format
         args = s.split("-")
 
-    print(args)
-
     args = list(map(int, args))
     return datetime_safe.date(args[0], args[1], args[2])
 

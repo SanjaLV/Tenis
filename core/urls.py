@@ -21,5 +21,6 @@ urlpatterns = [
     path('new_player', views.create_player, name="create_player"),
     path('graphs', views.graphs, name="graphs"),
     path('to_verify', views.not_verified_games, name="not_verified_games"),
-    path('achievement/<int:a_id>', views.achievement_info, name="achievement_info")
+    path('achievement/<int:a_id>', views.achievement_info, name="achievement_info"),
+    path('json/get_to_verify', views.json_to_verify, name="json_to_verify")
 ]

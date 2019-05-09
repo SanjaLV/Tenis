@@ -13,6 +13,36 @@
         {% block script %}
 
         {% endblock %}
+
+
+        function httpGetAsync(theUrl, callback)
+        {
+            let xmlHttp = new XMLHttpRequest();
+            xmlHttp.onreadystatechange = function() {
+                if (xmlHttp.readyState === 4 && xmlHttp.status === 200)
+                callback(xmlHttp.responseText);
+            };
+            xmlHttp.open("GET", theUrl, true); // true for asynchronous
+            xmlHttp.send(null);
+        }
+
+
+        function ShowToVerify(text) {
+            const json = JSON.parse(text);
+            console.log(json);
+            if (json.count !== undefined && json.count > 0) {
+                let to_verify = document.getElementById("to_verify");
+                to_verify.classList.add("badge-danger");
+                to_verify.innerText = to_verify.innerText + "(" + json.count + ")";
+            }
+        }
+
+        function GetNotificationCount() {
+            httpGetAsync("/core/json/get_to_verify", ShowToVerify);
+        }
+
+        GetNotificationCount();
+
     </script>
 </head>
 <body>
@@ -34,6 +64,9 @@
         <div class="navbar-right">
             <div class="navbar-nav">
                 {% if user.is_authenticated %}
+                    <div id="animate_color">
+                        <a id="to_verify" class="nav-item nav-link" href="/core/to_verify">Verify</a>
+                    </div>
                     <a class="nav-item nav-link" href="/core/players">My Players</a>
                     <a class="nav-item nav-link" href="/core/user/{{ user.pk }}">Profile</a>
                     <a class="nav-item nav-link" href="/accounts/logout">Logout</a>

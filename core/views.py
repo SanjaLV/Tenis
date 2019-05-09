@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.template import loader
 from django.db.models import Q
 from django.utils.datetime_safe import datetime
@@ -444,13 +444,9 @@ def player_achievements(request, player_id):
         return HttpResponseForbidden(core.errors.THERE_IS_NO_PLAYER)
 
     all_list = PlayerAchievement.objects.filter(player_id=player)
-    print(all_list)
 
     complete_list = all_list.filter(finished=True)
     unfinished_list = all_list.filter(finished=False).order_by("-progress")
-
-    print(complete_list)
-    print(unfinished_list)
 
     end_time = time.time()
     server_time = ('Done in {:.3f} ms'.format((end_time - start_time) * 1000.0))
@@ -554,9 +550,6 @@ def not_verified_games(request):
 
     user_players = Player.objects.filter(user=user)
 
-    for pl in user_players:
-        print(pl)
-
     if len(user_players) != 0:
         my_player_q = Q(player2__user__pk=user.pk)
         games_to_validate = Game.objects.filter(verified=False).filter(my_player_q)
@@ -599,4 +592,10 @@ def achievement_info(request, a_id):
 
     return HttpResponse(template.render(context, request))
 
-# TODO Add achivments
+
+def json_to_verify(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({})
+    cnt = Game.objects.filter(verified=False, player2__user__pk=request.user.pk).count()
+
+    return JsonResponse({'count': cnt})
