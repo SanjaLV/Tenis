@@ -8,7 +8,11 @@
             {{ game.date|date:'Y-m-d' }}
         </td>
         <td>
+            {% if game.ended %}
             ({{ game.elo1 }})→({{ game.newElo1 }})
+            {% else %}
+            ({{ game.elo1 }})
+            {% endif %}
         </td>
         <td>
             {% if game.ended %}
@@ -28,7 +32,11 @@
             {% endif %}
         </td>
         <td>
+            {% if game.ended %}
             ({{ game.elo2 }})→({{ game.newElo2 }})
+            {% else %}
+            ({{ game.elo2 }})
+            {% endif %}
         </td>
     </tr>
 
