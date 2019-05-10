@@ -22,7 +22,7 @@ class AchievementsInfo:
     def __init__(self, save_progress: bool = False,  # Save progress after process
                                                      # if you specify save_progress
                                                      # you must define max_progress also
-                 max_progress : int = None,
+                 max_progress: int = None,
                  winner: bool = False,  # Need to call for winer
                  loser: bool = False,  # Need to call for loser
                  prev_games: int = 0,  # Count of previos games to pass
@@ -48,7 +48,7 @@ class AchievementsInfo:
 
 class AchievementsData:
     def __init__(self, progress: int = None,  # Achievements progress
-                 is_winner: bool = None,  # Current usere is winner?
+                 is_winner: bool = None,  # Current user is winner?
                  prev_games: List[any] = None,  # List with previous games
                  statistic: any = None):  # Player statistic
         if progress is not None:
@@ -62,8 +62,9 @@ class AchievementsData:
 
 
 class Achievement:
-    def __init__(self, pk):
-        self.pk = pk
+    def __init__(self, name: str, desc: str):
+        self.name = name
+        self.desc = desc
 
     def register(self) -> AchievementsInfo:
         pass

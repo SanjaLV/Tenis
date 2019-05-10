@@ -6,6 +6,10 @@ from core.plugins.plugin_interface import Achievement, AchievementsInfo, Status
 
 
 class FirstGame(Achievement):
+
+    def __init__(self):
+        Achievement.__init__(self, name="I wanna be the very best", desc="Play your first game.")
+
     def register(self):
         info = AchievementsInfo(save_progress=False,
                                 winner=True,
@@ -19,6 +23,10 @@ class FirstGame(Achievement):
 
 
 class FirstWin(Achievement):
+
+    def __init__(self):
+        Achievement.__init__(self, name="Easy game, easy win", desc="Win your first game.")
+
     def register(self):
         info = AchievementsInfo(winner=True)
         return info
@@ -28,6 +36,10 @@ class FirstWin(Achievement):
 
 
 class FirstLose(Achievement):
+
+    def __init__(self):
+        Achievement.__init__(self, name="Start of losers journey", desc="Lose your first game.")
+
     def register(self):
         info = AchievementsInfo(loser=True)
         return info
@@ -40,8 +52,9 @@ class FirstLose(Achievement):
 # Win games_to_win to get achievement
 class WinGames(Achievement):
 
-    def __init__(self, pk, games_to_win):
-        Achievement.__init__(self, pk)
+    def __init__(self, games_to_win, name):
+        desc = "Win %d games." % games_to_win
+        Achievement.__init__(self, name=name, desc=desc)
         self.games_to_win = games_to_win
 
     def register(self):
@@ -59,13 +72,13 @@ class WinGames(Achievement):
 
 
 def setPlugins(plugin_list):
-    plugin_list.append(FirstGame(1))   # Achievement model PK = 1
-    plugin_list.append(FirstWin(2))    # Achievement model PK = 2
-    plugin_list.append(FirstLose(3))   # Achievement model PK = 3
-    plugin_list.append(WinGames(4, 5)) # Cnt of wins = 5,  PK = 4
-    plugin_list.append(WinGames(5, 50))
-    plugin_list.append(WinGames(6, 200))
-    plugin_list.append(WinGames(7, 500))
+    plugin_list.append(FirstGame())
+    plugin_list.append(FirstWin())
+    plugin_list.append(FirstLose())
+    plugin_list.append(WinGames(games_to_win=5, name="Win 5 games."))
+    plugin_list.append(WinGames(games_to_win=50, name="Win 50 games."))
+    plugin_list.append(WinGames(games_to_win=200, name="I have won so many times."))
+    plugin_list.append(WinGames(games_to_win=500, name="Tennis champion"))
 
 
 # How to add new Achievement
