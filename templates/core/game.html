@@ -106,51 +106,47 @@
 
 {% block full_size %}
 
-    <div class="spinner-border" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-
     <p class="d-flex justify-content-center">
-        <a class="btn btn-primary" onclick="LoadPVPData();" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-            Detailed statisitcs
+        <a class="btn btn-primary" onclick="LoadPVPData();" data-toggle="collapse" href="#detailed_stat" role="button" aria-expanded="false" aria-controls="detailed_stat">
+            Detailed statistics
         </a>
     </p>
-    <div class="collapse" id="collapseExample">
+    <div class="collapse" id="detailed_stat">
             <div class="d-flex justify-content-center">
                 <table class="table-sm table-striped table-bordered text-center">
                     <tr>
-                        <td>Player</td>
+                        <th scope="row">Player</th>
                         <td>{{ game.player1 }}</td>
                         <td>{{ game.player2 }}</td>
                     </tr>
                     <tr>
-                        <td>Games</td>
+                        <th scope="row">Games</th>
                         <td colspan="2" id="pvp_stat_games">
                             ⏳
                         </td>
                     </tr>
                     <tr>
-                        <td>Wins</td>
+                        <th scope="row">Wins</th>
                         <td id="pvp_stat_win1">⏳</td>
                         <td id="pvp_stat_win2">⏳</td>
                     </tr>
                     <tr>
-                        <td>Winrate%</td>
+                        <th scope="row">Winrate%</th>
                         <td id="pvp_stat_wr1">⏳</td>
                         <td id="pvp_stat_wr2">⏳</td>
                     </tr>
                     <tr>
-                        <td>Set total</td>
+                        <th scope="row">Set total</th>
                         <td id="pvp_stat_st1">⏳</td>
                         <td id="pvp_stat_st2">⏳</td>
                     </tr>
                     <tr>
-                        <td>Set percentage%</td>
+                        <th scope="row">Set percentage%</th>
                         <td id="pvp_stat_sp1">⏳</td>
                         <td id="pvp_stat_sp2">⏳</td>
                     </tr>
                     <tr>
-                        <td>Elo probability%</td>
+                        <th scope="row">Elo probability%</th>
                         <td id="pvp_stat_elo1">⏳</td>
                         <td id="pvp_stat_elo2">⏳</td>
                     </tr>
