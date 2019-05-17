@@ -118,3 +118,16 @@ class TestPlayer(TestCase):
             self.assertEqual(s, should_be_s[iteration])
             iteration += 1
 
+    def test_activate_player(self):
+        c = Client()
+
+        p1 = Player.objects.create(name="John", user=self.John)
+        s1 = Statistic.objects.create(player=p1)
+
+        respone = c.get('/core/player/1/enable')
+        self.assertEqual(respone.status_code, 403)
+
+        c.login(username="Max", password="adjd8j82hDao")
+
+        respone = c.get('/core/player/1/enable')
+        self.assertEqual(respone.status_code, 403)
