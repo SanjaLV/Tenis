@@ -141,8 +141,6 @@ def index(request):
         'render_time': server_time
     }
 
-
-
     return HttpResponse(template.render(context, request))
 
 
@@ -608,8 +606,6 @@ def json_to_verify(request):
 
 
 def json_pvp_stat(request, player_one, player_two):
-    print(player_one)
-    print(player_two)
     try:
         p1 = Player.objects.get(pk=player_one)
         p2 = Player.objects.get(pk=player_two)
@@ -623,26 +619,47 @@ def json_pvp_stat(request, player_one, player_two):
 
     p1_win = 0
     p2_win = 0
+    total_set_1 = 0
+    total_set_2 = 0
+    games_count = 0
 
     for game in games:
         if game.ended():
-            if (game.player1.pk == player_one):
+            games_count += 1
+            if game.player1.pk == player_one:
+                total_set_1 += game.score1
+                total_set_2 += game.score2
+
                 # One vs Two
-                if (game.player1_win):
+                if game.player1_win():
                     p1_win += 1
                 else:
                     p2_win += 1
             else:
+                total_set_2 += game.score1
+                total_set_1 += game.score2
+
                 # Two vs One
-                if (game.player1_win):
+                if game.player1_win():
                     p2_win += 1
                 else:
                     p1_win += 1
 
+    import decimal
+    p1_should = decimal.Decimal(1) / (decimal.Decimal(1) +
+                                      decimal.Decimal(10) ** (
+                                                  decimal.Decimal(p2.elo - p1.elo) / decimal.Decimal(400)))
+    p2_should = 1 - p1_should
+    p1_should *= 100
+    p2_should *= 100
     res = {
-        'count': len(games),
-        'p1_win' : p1_win,
-        'p2_win' : p2_win
+        'games': games_count,
+        'w1' : p1_win,
+        'w2' : p2_win,
+        'st1': total_set_1,
+        'st2': total_set_2,
+        'elo1': "%.2f" % p1_should,
+        'elo2': "%.2f" % p2_should
     }
 
     return JsonResponse(res)
