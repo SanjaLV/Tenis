@@ -18,6 +18,14 @@ const page = 1;
 {% endif %}
 const max_page = {{max_page}};
 
+function FirstPage() {
+    MoveToPage(1 - page);
+}
+
+function LastPage() {
+    MoveToPage(max_page - page);
+}
+
 function NextPage() {
     MoveToPage(+1);
 }
@@ -52,6 +60,11 @@ function CreateLiWithDiv(is_active, on_click_function, text, param=null) {
     return li;
 }
 
+function max(a, b) {
+    if (a > b) return a;
+    return b;
+}
+
 function min(a, b) {
     if (a < b) return a;
     return b;
@@ -61,40 +74,36 @@ function Render() {
     let main = document.getElementById("page-menu");
 
     if (page !== 1) {
+        main.appendChild(CreateLiWithDiv(false, FirstPage, "First"));
         main.appendChild(CreateLiWithDiv(false, PrevPage, "Previous"));
     }
 
-    const count = 5;
-    let can_before = min(4, page - 1);
-    let can_after  = min(4, max_page - page);
-    let start = 0;
+    const count = 7;
+    let l = -3;
+    let r = +3;
+    let max_left = 1 - page;
+    let max_right = max_page - page;
 
-    console.log(can_before);
-    console.log(page);
-
-    if (can_before >= 2 && can_after >= 2) {
-        start = -2;
-    }
-    else if (can_before === 1) {
-        start = -1;
-    }
-    else if (can_before === 0) {
-        start = 0;
-    }
-    else if (can_after === 1) {
-        start = -3;
-    }
-    else if (can_after === 0) {
-        start = -4;
+    while (l + page <= 0) {
+        l++;
+        r++;
     }
 
-    for (let i = 0; i < count; i++) {
-        if (start + i + page > max_page) break;
-        main.appendChild(CreateLiWithDiv(start + i === 0, GetMoveToPageParam, page + start + i, start + i));
+    while (page + r > max_page) {
+        l--;
+        r--;
+    }
+
+    l = max(max_left, l);
+    r = min(max_right, r);
+
+    for (let i = l; i <= r; i++) {
+        main.appendChild(CreateLiWithDiv(i === 0, GetMoveToPageParam, page + i, i));
     }
 
     if (page !== max_page) {
         main.appendChild(CreateLiWithDiv(false, NextPage, "Next"));
+        main.appendChild(CreateLiWithDiv(false, LastPage, "Last"));
     }
 
 }

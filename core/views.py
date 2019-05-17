@@ -114,15 +114,21 @@ def index(request):
 
     game_count = Game.objects.count()
 
-    max_page = (game_count + ITEMS_ON_PAGE - 1) // ITEMS_ON_PAGE
+    if (game_count > ITEMS_ON_PAGE):
+        max_page = (game_count + ITEMS_ON_PAGE - 1) // ITEMS_ON_PAGE
 
-    page = max(page, 1)
-    page = min(page, max_page)
+        page = max(page, 1)
+        page = min(page, max_page)
 
-    i_start = (page - 1) * ITEMS_ON_PAGE
-    i_end   = (page) * ITEMS_ON_PAGE
-    i_end = min(i_end, game_count+1)
-    latest_game_list = Game.objects.order_by("-pk")[i_start:i_end]
+        i_start = (page - 1) * ITEMS_ON_PAGE
+        i_end   = (page) * ITEMS_ON_PAGE
+        i_end = min(i_end, game_count+1)
+        latest_game_list = Game.objects.order_by("-pk")[i_start:i_end]
+    else:
+        latest_game_list = Game.objects.all().order_by("-pk")
+        max_page = 1
+        page = 1
+
     template = loader.get_template("core/index.html")
 
     end_time = time.time()
@@ -599,3 +605,44 @@ def json_to_verify(request):
     cnt = Game.objects.filter(verified=False, player2__user__pk=request.user.pk).count()
 
     return JsonResponse({'count': cnt})
+
+
+def json_pvp_stat(request, player_one, player_two):
+    print(player_one)
+    print(player_two)
+    try:
+        p1 = Player.objects.get(pk=player_one)
+        p2 = Player.objects.get(pk=player_two)
+    except ObjectDoesNotExist:
+        return JsonResponse({})
+
+    query_12 = Q(player1=player_one) & Q(player2=player_two)
+    query_21 = Q(player1=player_two) & Q(player2=player_one)
+
+    games = Game.objects.filter(query_12 | query_21)
+
+    p1_win = 0
+    p2_win = 0
+
+    for game in games:
+        if game.ended():
+            if (game.player1.pk == player_one):
+                # One vs Two
+                if (game.player1_win):
+                    p1_win += 1
+                else:
+                    p2_win += 1
+            else:
+                # Two vs One
+                if (game.player1_win):
+                    p2_win += 1
+                else:
+                    p1_win += 1
+
+    res = {
+        'count': len(games),
+        'p1_win' : p1_win,
+        'p2_win' : p2_win
+    }
+
+    return JsonResponse(res)
