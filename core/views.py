@@ -417,6 +417,9 @@ def edit_player(request, player_id):
 
 
 def activate_player(request, player_id):
+    if request.method != "POST":
+        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
     if not request.user.is_authenticated:
         return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
     user = request.user
@@ -466,6 +469,9 @@ def player_achievements(request, player_id):
 
 
 def reset_game_score(request, game_id):
+    if request.method != "POST":
+        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
     if request.user.is_authenticated:
         user = request.user
         try:
@@ -483,6 +489,9 @@ def reset_game_score(request, game_id):
 
 
 def verify_game(request, game_id):
+    if request.method != "POST":
+        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
     if request.user.is_authenticated:
         user = request.user
         try:
@@ -505,6 +514,9 @@ def verify_game(request, game_id):
 
 
 def delete_game(request, game_id):
+    if request.method != "POST":
+        return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
     if request.user.is_authenticated:
         user = request.user
         try:

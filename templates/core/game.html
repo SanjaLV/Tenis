@@ -2,7 +2,6 @@
 {% block title %} {{ game.player1 }} vs {{ game.player2 }} {% endblock %}
 
 {% block script %}
-    {% include "js/DeleteGame.js" with game_id=game.pk %}
     {% include "js/json_request.js" %}
 
     {% include "js/LoadPVP.js" with p1=game.player1.pk p2=game.player2.pk only %}
@@ -67,14 +66,20 @@
             {% if game.player1.user == user or game.player2.user == user %}
                 <tr>
                     <td colspan="2">
-                        <a class="btn btn-danger" href="/core/game/{{ game.pk }}/reset">Reset score!</a>
+                        <form action="/core/game/{{ game.pk }}/reset" method="post">
+                            {% csrf_token %}
+                            <input type="submit" class="btn btn-danger" value="Reset score">
+                        </form>
                     </td>
                 </tr>
             {% endif %}
             {% if game.player2.user == user %}
                 <tr>
                     <td colspan="2">
-                        <a class="btn btn-success" href="/core/game/{{ game.pk }}/verify">Verify!</a>
+                        <form action="/core/game/{{ game.pk }}/verify" method="post">
+                            {% csrf_token %}
+                            <input type="submit" class="btn btn-success" value="Verify">
+                        </form>
                     </td>
                 </tr>
             {% endif %}
@@ -93,7 +98,10 @@
             {% if game.player1.user == user %}
                 <tr>
                     <td colspan="2">
-                        <div onclick="DeleteGame()" class="btn btn-danger">Delete game</div>
+                        <form action="/core/game/{{ game.pk }}/delete" method="post">
+                            {% csrf_token %}
+                            <input type="submit" onclick="return confirm('Are you sure you want to delete?')" class="btn btn-danger" value="Delete game">
+                        </form>
                     </td>
                 </tr>
             {% endif %}

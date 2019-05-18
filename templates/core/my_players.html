@@ -24,9 +24,19 @@
                     <td>{{ s.wins }}</td>
                     <td>{{ s.games }}</td>
                     {% if p.active %}
-                        <td><a href="/core/player/{{ p.pk }}/enable" class="btn btn-warning">Disable</a> </td>
+                        <td>
+                            <form action="/core/player/{{ p.pk }}/enable" method="post">
+                                {% csrf_token %}
+                                <input type="submit" class="btn btn-warning" value="Disable">
+                            </form>
+                        </td>
                     {% else %}
-                        <td><a href="/core/player/{{ p.pk }}/enable" class="btn btn-info">Enable</a></td>
+                        <td>
+                            <form action="/core/player/{{ p.pk }}/enable" method="post">
+                                {% csrf_token %}
+                                <input type="submit" class="btn btn-warning" value="Enable">
+                            </form>
+                        </td>
                     {% endif %}
                     <td><a href="/core/player/{{ p.pk }}/edit" class="btn btn-primary">Edit</a></td>
                 </tr>

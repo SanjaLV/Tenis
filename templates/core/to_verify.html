@@ -59,12 +59,20 @@
                 <td>
                     ({{ game.elo2 }})→({{ game.newElo2 }})
                 </td>
+                {% if game.ended %}
                 <td>
-                    <a class="btn btn-success" href="/core/game/{{ game.pk }}/verify">Verify!</a>
+                    <form action="/core/game/{{ game.pk }}/verify" method="post">
+                        {% csrf_token %}
+                        <input type="submit" class="btn btn-success" value="Verify">
+                    </form>
                 </td>
                 <td>
-                    <a class="btn btn-danger" href="/core/game/{{ game.pk }}/reset">Reset score!</a>
+                    <form action="/core/game/{{ game.pk }}/reset" method="post">
+                        {% csrf_token %}
+                        <input type="submit" class="btn btn-danger" value="Reset score">
+                    </form>
                 </td>
+                {% endif %}
             </tr>
         {% endfor %}
     </table>
