@@ -568,7 +568,6 @@ def not_verified_games(request):
             games_to_validate[i].score1, games_to_validate[i].score2 = games_to_validate[i].score2, games_to_validate[i].score1
             games_to_validate[i].elo1, games_to_validate[i].elo2 = games_to_validate[i].elo2, games_to_validate[i].elo1
 
-
     context = {
         'games': games_to_validate
     }

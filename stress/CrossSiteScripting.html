@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSS attacks</title>
+
+</head>
+<body>
+    <div style="color: green">FORM GET Player1 EDIT:</div>
+    <form action="http://localhost:8000/core/player/1/edit"  target="_blank" method="get">
+        <input type="submit" value="PlayerName">
+    </form>
+
+    <br>
+
+    <div style="color: green">FORM POST Player1 EDIT:</div>
+    <form action="http://localhost:8000/core/player/1/edit"  target="_blank" method="post">
+        <input type="text" name="name">
+        <input type="submit" value="SetPlayerName">
+    </form>
+
+    <br>
+
+    <div style="color: red">FORM SUBMIT GET Player1 ENABLE: (NOT FIXED)</div>
+    <form action="http://localhost:8000/core/player/1/enable"  target="_blank" method="get">
+        <input type="submit" value="EnablePlayer">
+    </form>
+
+    <br>
+
+    <div style="color: green">FORM GET CreateGame:</div>
+    <form action="http://localhost:8000/core/create"  target="_blank" method="post">
+        <input type="number" name="player1">
+        <input type="number" name="player2">
+        <input type="submit" value="CreateGame">
+    </form>
+
+    <div style="color: red">FORM GET Delete Game: (NOT FIXED)</div>
+    <form action="http://localhost:8000/core/game/1/delete"  target="_blank" method="get">
+        <input type="submit" value="DeleteGame">
+    </form>
+
+    <br>
+
+</body>
+</html>
