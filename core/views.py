@@ -68,10 +68,12 @@ def progress_achievement(game):
     if not game.ended():
         return
 
+    all_achievements = Achievement.objects.all()
+    if all_achievements.count() == 0:
+        return
+
     # need to sleep here, otherwise there will be no response until we finish this task
     time.sleep(0.5)
-
-    all_achievements = Achievement.objects.all()
 
     p1stat = Statistic.objects.get(player=game.player1.pk)
     p2stat = Statistic.objects.get(player=game.player2.pk)
@@ -114,7 +116,7 @@ def index(request):
 
     game_count = Game.objects.count()
 
-    if (game_count > ITEMS_ON_PAGE):
+    if game_count > ITEMS_ON_PAGE:
         max_page = (game_count + ITEMS_ON_PAGE - 1) // ITEMS_ON_PAGE
 
         page = max(page, 1)
@@ -231,7 +233,7 @@ def validate_score(post_data):
     try:
         s = int(post_data["score1"])
         s = int(post_data["score2"])
-    except TypeError:
+    except ValueError:
         return False, "Data is not int"
     return True, ""
 
@@ -242,8 +244,14 @@ def validate_game(post_data, user):
     if "player2" not in post_data:
         return False, "There is no player two!"
     try:
-        p1 = Player.objects.get(pk=int(post_data["player1"]))
-        p2 = Player.objects.get(pk=int(post_data["player2"]))
+        player_1 = int(post_data["player1"])
+        player_2 = int(post_data["player2"])
+    except ValueError:
+        return False, "Data is not int"
+
+    try:
+        p1 = Player.objects.get(pk=player_1)
+        p2 = Player.objects.get(pk=player_2)
 
         if p1.user == p2.user:
             return False, "You cannot play with yourself!"
@@ -273,6 +281,10 @@ def set_game_score(request, game_id):
 
         flag, res = validate_score(post_data)
 
+        if this_game.ended():
+            flag = False
+            res += "Cannot change already saved scores, please remove it first."
+
         if flag:
             this_game.score1 = int(post_data["score1"])
             this_game.score2 = int(post_data["score2"])
@@ -281,7 +293,7 @@ def set_game_score(request, game_id):
         else:
             messages.warning(request, "ERROR!" + res)
 
-    return game_data(request, game_id)
+    return redirect('game', game_id=game_id)
 
 
 def rating(request):
@@ -312,7 +324,7 @@ def create_game(request):
             p2 = Player.objects.get(pk=int(post_data["player2"]))
             new_game = Game.objects.create(player1=p1, elo1=p1.elo, player2=p2, elo2=p2.elo)
             messages.success(request, "Game created.")
-            return game_data(request, new_game.pk)
+            return redirect('game', game_id=new_game.pk)
         else:
             messages.warning(request, "ERROR!" + res)
             # Fallthrough
@@ -482,6 +494,9 @@ def reset_game_score(request, game_id):
         if user != this_game.player1.user and user != this_game.player2.user:
             return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
 
+        if this_game.verified:
+            return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
         this_game.cancel_game()
         return redirect('game', game_id=game_id)
     else:
@@ -533,7 +548,7 @@ def delete_game(request, game_id):
         this_game.delete()
 
         messages.error(request, "Game was deleted!")
-        return index(request)
+        return redirect('index')
 
     return HttpResponseForbidden(core.errors.YOU_MUST_LOGIN)
 
