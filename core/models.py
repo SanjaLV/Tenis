@@ -138,7 +138,6 @@ class Statistic(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     games = models.IntegerField(default=0)
     wins = models.IntegerField(default=0)
-    streak = models.IntegerField(default=0)
     achievements_count = models.IntegerField(default=0)
 
     def __str__(self):
