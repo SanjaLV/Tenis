@@ -366,8 +366,9 @@ def user_players(request):
         stats = []
         for p in my_players:
             stats.append(Statistic.objects.get(player=p))
+
         context = {
-            'players_stats': zip(my_players, stats)
+            'players_stats': list(zip(my_players, stats))
         }
         return HttpResponse(template.render(context, request))
 
@@ -497,6 +498,9 @@ def reset_game_score(request, game_id):
 
         if this_game.verified:
             return HttpResponseForbidden(core.errors.YOU_ARE_NOT_ALLOWED)
+
+        if not this_game.ended():
+            return HttpResponseForbidden("There is nothing to remove!")
 
         this_game.cancel_game()
         return redirect('game', game_id=game_id)
