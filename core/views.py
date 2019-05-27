@@ -520,6 +520,7 @@ def verify_game(request, game_id):
         if not this_game.ended():
             return HttpResponseForbidden(core.errors.GAME_NOT_ENDED)
 
+        messages.success(request, "Game is verified!")
         this_game.verified = True
         this_game.save()
         async_progress_achievement(this_game)
@@ -581,7 +582,7 @@ def not_verified_games(request):
 
     user_players = Player.objects.filter(user=user)
 
-    if len(user_players) != 0:
+    if user_players is not None and len(user_players) != 0:
         my_player_q = Q(player2__user__pk=user.pk)
         games_to_validate = Game.objects.filter(verified=False).filter(my_player_q)
     else:

@@ -16,16 +16,14 @@ class Status(Enum):
 """
 Helper structure contained plugin registration info.
 """
-
-
 class AchievementsInfo:
     def __init__(self, save_progress: bool = False,  # Save progress after process
                                                      # if you specify save_progress
                                                      # you must define max_progress also
                  max_progress: int = None,
-                 winner: bool = False,  # Need to call for winer
+                 winner: bool = False,  # Need to call for winner
                  loser: bool = False,  # Need to call for loser
-                 prev_games: int = 0,  # Count of previos games to pass
+                 prev_games: int = 0,  # Count of previous games to pass
                  statistic: bool = False):  # Need to pass statistic
         self.save_progress = save_progress
         self.winner = winner

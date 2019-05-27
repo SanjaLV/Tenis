@@ -15,10 +15,10 @@ class Crawler(threading.Thread):
 
         #print("thread started!")
 
-        #w8_time = random.randint(10, 50) / 10
-        #time.sleep(w8_time)
+        w8_time = random.randint(10, 300) / 10
+        time.sleep(w8_time)
 
-        t_end = time.time() + 10
+        t_end = time.time() + 120
         while time.time() < t_end:
             # Run for 1min
             cnt += 1
@@ -29,8 +29,8 @@ class Crawler(threading.Thread):
             max_time = max(max_time, e_time)
             totall_time += e_time
 
-            #w8_time = random.randint(5, 50) / 10
-            #time.sleep(w8_time)
+            w8_time = random.randint(5, 100) / 10
+            time.sleep(w8_time)
 
         #print("thread ended")
         self.cnt = cnt
@@ -41,7 +41,7 @@ class Crawler(threading.Thread):
 def main():
 
 
-    user_count = 8
+    user_count = 50
 
     while True:
 
@@ -70,7 +70,7 @@ def main():
         print("max time     :", max_time)
         print("avg time     :", totall_time / request_count)
         print("totall time  :", totall_time)
-        print("req/sec      :", request_count / 10.0)
+        print("req/sec      :", request_count / 120.0)
 
         if (max_time > 0.9):
             break

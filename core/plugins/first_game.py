@@ -48,7 +48,7 @@ class FirstLose(Achievement):
         return Status.FINISHED, None
 
 
-# This is intentionally writen without usage of statistics.wins, to test progress save/load
+# This is intentionally written without usage of statistics.wins, to test progress save/load
 # Win games_to_win to get achievement
 class WinGames(Achievement):
 

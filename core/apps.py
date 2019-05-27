@@ -29,7 +29,11 @@ class CoreConfig(AppConfig):
     name = 'core'
 
     def ready(self):
+        import sys
+        if 'runserver' not in sys.argv:
+            return True
         prepare_plugins()
+        print("CoreConfig done!")
 
 
 
