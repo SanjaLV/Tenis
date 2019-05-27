@@ -79,7 +79,7 @@ class Game(models.Model):
         decimal_ctx = decimal.Context(prec=6, rounding=decimal.ROUND_HALF_UP)
         change = decimal_ctx.create_decimal(change).quantize(decimal.Decimal(10) ** -2)
         self.change = change
-        self.save()
+
 
     def apply_change(self, subtract=False):
         p1 = Player.objects.get(pk=self.player1.pk)
@@ -96,6 +96,7 @@ class Game(models.Model):
 
     def accept_game(self):
         self.calculate()
+        self.save()
         self.apply_change()
 
         p1_stat = Statistic.objects.get(player=self.player1)
