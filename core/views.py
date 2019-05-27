@@ -2,7 +2,6 @@ import time
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
@@ -12,7 +11,7 @@ from django.db.models import Q
 from django.utils.datetime_safe import datetime
 
 import core.errors
-from core.forms import PlayerCreation
+from core.forms import PlayerCreation, SignUpForm
 
 from core.utils import GraphData
 from .models import Game, Player, Statistic, Achievement, PlayerAchievement
@@ -148,7 +147,7 @@ def index(request):
 
 def register(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = SignUpForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
@@ -157,7 +156,7 @@ def register(request):
             login(request, user)
             return redirect('index')
     else:
-        form = UserCreationForm()
+        form = SignUpForm()
     return render(request, "registration/register.html", {'form': form})
 
 
