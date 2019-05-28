@@ -23,7 +23,7 @@ class Game(models.Model):
     elo1     = models.DecimalField(max_digits=6, decimal_places=2)
     elo2     = models.DecimalField(max_digits=6, decimal_places=2)
     change   = models.DecimalField(max_digits=6, decimal_places=2, default=0)
-    date     = models.DateTimeField(auto_now_add=True)
+    date     = models.DateTimeField()
     verified = models.BooleanField(default=False)
 
     def __str__(self):

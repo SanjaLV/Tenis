@@ -1,12 +1,19 @@
 import os
+import time
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
+from django.db import transaction
 from django.utils import datetime_safe
 
 from core.models import Player, Game, Statistic
 
+from caching.cache import Cacher
+
 TODO_user = None
+
+player_cache = Cacher()
+statistic_cache = Cacher()
 
 
 def normalize_name(name):
@@ -36,8 +43,7 @@ def get_date(s):
     return datetime_safe.date(args[0], args[1], args[2])
 
 
-def process(params):
-    global TODO_user
+def process(games, params):
     id = int(params[0])
     date = get_date(params[1])
     player1_name = normalize_name(params[2])
@@ -45,20 +51,32 @@ def process(params):
     player2_name = normalize_name(params[4])
     score2 = int(params[5])
 
-    player1, new_player1 = Player.objects.get_or_create(name=player1_name, user=TODO_user)
-    player2, new_player2 = Player.objects.get_or_create(name=player2_name, user=TODO_user)
+    # get cached players
+    player1 = player_cache.get(unique=player1_name)
+    player2 = player_cache.get(unique=player2_name)
 
-    # make sure there is statistics for players
-    if new_player1:
-        stat1 = Statistic.objects.create(player=player1)
-    if new_player2:
-        stat2 = Statistic.objects.create(player=player2)
+    # get cached statistics
+    stat1 = statistic_cache.get(unique=player1.pk)
+    stat2 = statistic_cache.get(unique=player2.pk)
 
-    this_game = Game.objects.create(player1=player1, score1=score1, elo1=player1.elo,
-                                    player2=player2, score2=score2, elo2=player2.elo,
-                                    verified=True)
-    this_game.date = date
-    this_game.accept_game()  # <- will save this_game
+    this_game = Game(player1=player1, score1=score1, elo1=player1.elo,
+                     player2=player2, score2=score2, elo2=player2.elo,
+                     verified=True, date=date)
+    this_game.calculate()
+
+    games.append(this_game)
+
+    # update ratings and stats
+    player1.elo += this_game.change
+    player2.elo -= this_game.change
+
+    stat1.games += 1
+    stat2.games += 1
+    if this_game.player1_win():
+        stat1.wins += 1
+    else:
+        stat2.wins += 1
+
 
 
 class CSVParser(object):
@@ -72,6 +90,11 @@ class CSVParser(object):
     def parse(self):
         global TODO_user
         TODO_user, flag = User.objects.get_or_create(username="TODO")
+
+        # Collect all player names
+
+        names = []
+
         with open(self.filename, "r") as f:
             for line in f:
                 splited_line = line.split(",")
@@ -80,18 +103,73 @@ class CSVParser(object):
                 if splited_line[1] == "":
                     continue
                 if len(splited_line) >= 6:
-                    process(splited_line[:6])
+                    normalized_name = normalize_name(splited_line[2])
+                    if normalized_name not in names:
+                        names.append(normalized_name)
+                    normalized_name = normalize_name(splited_line[4])
+                    if normalized_name not in names:
+                        names.append(normalized_name)
+
+        # Create all players
+        players = []
+
+        for name in names:
+            players.append(Player(name=name, user=TODO_user))
+
+        Player.objects.bulk_create(players)
+
+        players = Player.objects.all()
+
+        # Create players statistics
+        statistics = []
+        for player in players:
+            statistics.append(Statistic(player=player))
+
+        Statistic.objects.bulk_create(statistics)
+
+        statistics = Statistic.objects.all()
+
+        # Cache all data
+        for player in players:
+            player_cache.create(pk=player.pk, item=player, unique=player.name)
+
+        for stat in statistics:
+            statistic_cache.create(pk=stat.pk, item=stat, unique=stat.player.pk)
+
+        # Process games
+        games = []
+
+        with open(self.filename, "r") as f:
+            for line in f:
+                splited_line = line.split(",")
+                if splited_line[0] == "Nr":
+                    continue
+                if splited_line[1] == "":
+                    continue
+                if len(splited_line) >= 6:
+                    process(games, splited_line[:6])
                     # NO DATA P1 S1 P2 S2
                     # 0  1    2  3  4  5
 
+        # Create all games
+        Game.objects.bulk_create(games)
+
+        # Atomic update all data
+        with transaction.atomic():
+            for key, player in player_cache.data.items():
+                player.save()
+            for key, stat in statistic_cache.data.items():
+                stat.save()
+
 
 class Command(BaseCommand):
-    help = 'Displays current time'
+    help = 'Import games from CSV file'
 
     def add_arguments(self, parser):
         parser.add_argument('file', type=str, help='Games csv file')
 
     def handle(self, *args, **kwargs):
+        start_time = time.time()
         file = kwargs["file"]
 
         parser = CSVParser(file)
@@ -101,3 +179,6 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Start'))
             parser.parse()
             self.stdout.write(self.style.SUCCESS('DONE'))
+
+        end_time = time.time()
+        self.stdout.write(self.style.SUCCESS('Done in {:.3f} ms'.format((end_time - start_time) * 1000.0)))

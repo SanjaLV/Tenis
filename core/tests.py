@@ -3,6 +3,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, Client
 
 # Create your tests here.
+from django.utils import timezone
+
 from core.management.commands.import_games import normalize_name
 from .models import Game, Player, Statistic
 
@@ -11,9 +13,9 @@ class TestGame(TestCase):
     def setUp(self):
         pl = Player.objects.create(name="test", elo=0)
 
-        Game.objects.create(player1=pl, player2=pl, score1=3, score2=4, elo1=0, elo2=0)
-        Game.objects.create(player1=pl, player2=pl, elo1=1000, elo2=500, change=+10)
-        Game.objects.create(player1=pl, player2=pl, elo1=1000, elo2=500, change=-7)
+        Game.objects.create(player1=pl, player2=pl, score1=3, score2=4, elo1=0, elo2=0, date=timezone.now())
+        Game.objects.create(player1=pl, player2=pl, elo1=1000, elo2=500, change=+10, date=timezone.now())
+        Game.objects.create(player1=pl, player2=pl, elo1=1000, elo2=500, change=-7, date=timezone.now())
 
     def test_win(self):
         self.assertEqual(Game.objects.get(pk=1).player1_badge(), "danger")
@@ -201,7 +203,7 @@ class TestGames(TestCase):
         c = Client()
 
         game = Game.objects.create(player1=self.player_John, player2=self.player_Max, elo1=1, elo2=2, score1=3,
-                                   score2=4)
+                                   score2=4, date=timezone.now())
 
         c.login(username="Max", password=self.Max_password)
 
@@ -226,7 +228,7 @@ class TestGames(TestCase):
         c = Client()
 
         game = Game.objects.create(player1=self.player_John, player2=self.player_Max, elo1=1, elo2=2, score1=3,
-                                   score2=4)
+                                   score2=4, date=timezone.now())
 
         c.login(username="John", password=self.John_password)
 
@@ -262,7 +264,7 @@ class TestGames(TestCase):
         c = Client()
 
         game = Game.objects.create(player1=self.player_John, player2=self.player_Max, elo1=1, elo2=2, score1=0,
-                                   score2=0)
+                                   score2=0, date=timezone.now())
 
         response = c.post('/core/game/1/set_score', {'score1': 1, 'score2': 0})
         self.assertEqual(response.status_code, 403)
@@ -289,9 +291,9 @@ class TestGames(TestCase):
         c = Client()
 
         game1 = Game.objects.create(player1=self.player_John, player2=self.player_Max, elo1=1, elo2=2, score1=3,
-                                    score2=4)
+                                    score2=4, date=timezone.now())
         game2 = Game.objects.create(player1=self.player_John, player2=self.player_Max, elo1=1, elo2=2, score1=2,
-                                    score2=3, verified=True)
+                                    score2=3, verified=True, date=timezone.now())
 
         response = c.post('/core/game/1/reset')
         self.assertEqual(response.status_code, 403)
@@ -333,22 +335,22 @@ class TestGames(TestCase):
         c = Client()
 
         game1 = Game.objects.create(player1=self.player_John, player2=self.player_Max, elo1=1, elo2=2, score1=3,
-                                    score2=4)
+                                    score2=4, date=timezone.now())
 
         game2 = Game.objects.create(player1=self.player_Max, player2=self.player_John, elo1=1, elo2=2, score1=3,
-                                    score2=4)
+                                    score2=4, date=timezone.now())
 
         game3 = Game.objects.create(player1=self.player_John, player2=self.player_Max, elo1=1, elo2=2, score1=0,
-                                    score2=0)
+                                    score2=0, date=timezone.now())
 
         game4 = Game.objects.create(player1=self.player_Max, player2=self.player_John, elo1=1, elo2=2, score1=0,
-                                    score2=0)
+                                    score2=0, date=timezone.now())
 
         game5 = Game.objects.create(player1=self.player_John, player2=self.player_Max, elo1=1, elo2=2, score1=3,
-                                    score2=4, verified=True)
+                                    score2=4, verified=True, date=timezone.now())
 
         game6 = Game.objects.create(player1=self.player_Max, player2=self.player_John, elo1=1, elo2=2, score1=3,
-                                    score2=4, verified=True)
+                                    score2=4, verified=True, date=timezone.now())
 
         response = c.get("/core/to_verify")
         self.assertEqual(response.status_code, 403)

@@ -1,9 +1,11 @@
 import time
+from datetime import datetime
 from random import randint, random
 
 from django.core.management.base import BaseCommand
 
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from caching.cache import Cacher
 
@@ -36,8 +38,8 @@ class Command(BaseCommand):
             pks.append(player.pk)
             strengths.append(randint(1, 100))
 
-            player_cache.create(player.pk, player, unique=player.name)
-            statistic_cache.create(stat.pk, stat)
+            player_cache.create(pk=player.pk, item=player, unique=player.name)
+            statistic_cache.create(pk=stat.pk, item=stat, unique=player.pk)
 
         game_bulk = []
 
@@ -59,15 +61,15 @@ class Command(BaseCommand):
                 else:
                     score2 += 1
 
-            game = Game(player1=p1, elo1=p1.elo, player2=p2, elo2=p2.elo, score1=score1, score2=score2, verified=True)
+            game = Game(player1=p1, elo1=p1.elo, player2=p2, elo2=p2.elo, score1=score1, score2=score2, verified=True, date=timezone.now())
             game.calculate()
 
             # update cache
             p1.elo += game.change
             p2.elo -= game.change
 
-            s1 = statistic_cache.get(pk=p1.pk)
-            s2 = statistic_cache.get(pk=p2.pk)
+            s1 = statistic_cache.get(unique=p1.pk)
+            s2 = statistic_cache.get(unique=p2.pk)
 
             s1.games += 1
             s2.games += 2
