@@ -1,5 +1,6 @@
 import time
 
+import pytz
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
@@ -8,6 +9,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.template import loader
 from django.db.models import Q
+from django.utils import timezone
 from django.utils.datetime_safe import datetime
 
 import core.errors
@@ -321,7 +323,7 @@ def create_game(request):
         if flag:
             p1 = Player.objects.get(pk=int(post_data["player1"]))
             p2 = Player.objects.get(pk=int(post_data["player2"]))
-            new_game = Game.objects.create(player1=p1, elo1=p1.elo, player2=p2, elo2=p2.elo)
+            new_game = Game.objects.create(player1=p1, elo1=p1.elo, player2=p2, elo2=p2.elo, date=timezone.now())
             messages.success(request, "Game created.")
             return redirect('game', game_id=new_game.pk)
         else:

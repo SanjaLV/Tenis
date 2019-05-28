@@ -8,12 +8,12 @@ class Cacher:
         self.data = {}
         self.unique_to_pk = {}
 
-    def get(self, item = None, pk = None):
+    def get(self, unique=None, pk=None):
         if pk is not None:
             return self.data[pk]
 
-        if item is not None:
-            return self.data[self.unique_to_pk[item]]
+        if unique is not None:
+            return self.data[self.unique_to_pk[unique]]
 
         return None
 
