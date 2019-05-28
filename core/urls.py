@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('player/<int:player_id>', views.player_data, name="player"),
+    path('player/<int:player_id>/get_graph', views.json_player_graph, name="player_graph"),
     path('player/<int:player_id>/enable', views.activate_player, name="activate_player"),
     path('player/<int:player_id>/edit', views.edit_player, name="edit_player"),
     path('player/<int:player_id>/achievements', views.player_achievements, name="player_achievements"),
@@ -23,5 +24,6 @@ urlpatterns = [
     path('to_verify', views.not_verified_games, name="not_verified_games"),
     path('achievement/<int:a_id>', views.achievement_info, name="achievement_info"),
     path('json/get_to_verify', views.json_to_verify, name="json_to_verify"),
-    path('json/get_pvp/<int:player_one>/<int:player_two>', views.json_pvp_stat, name="json_pvp_stat")
+    path('json/get_pvp/<int:player_one>/<int:player_two>', views.json_pvp_stat, name="json_pvp_stat"),
+    path('json/interactive_graph', views.json_interactive_graph, name="json_iteractive_graph")
 ]

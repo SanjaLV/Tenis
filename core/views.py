@@ -185,14 +185,8 @@ def player_data(request, player_id):
     query = Q(player1=this_player.pk)
     query.add(Q(player2=this_player.pk), Q.OR)
 
-    all_games = Game.objects.filter(query).order_by("pk")
+    last_games = Game.objects.filter(query).order_by("-pk")[:5]
 
-    if len(all_games) < 5:
-        last_games = all_games
-    else:
-        last_games = all_games[len(all_games) - 5:]
-
-    last_games.reverse()
     # make sure this_player is always displayed as player1
     for i in range(len(last_games)):
         if last_games[i].player1 != this_player:
@@ -200,16 +194,6 @@ def player_data(request, player_id):
             last_games[i].change *= -1
             last_games[i].score1, last_games[i].score2 = last_games[i].score2, last_games[i].score1
             last_games[i].elo1, last_games[i].elo2 = last_games[i].elo2, last_games[i].elo1
-
-    graph_data = []
-    if len(all_games) > 0:
-        graph_data.append(GraphData(all_games[0].pk - 1, 800))
-
-    for g in all_games:
-        if g.player1 == this_player:
-            graph_data.append(GraphData(g.pk, g.newElo1()))
-        else:
-            graph_data.append(GraphData(g.pk, g.newElo2()))
 
     stat = Statistic.objects.get(player=this_player)
 
@@ -220,8 +204,7 @@ def player_data(request, player_id):
         'elo': this_player.elo,
         'last_games': last_games,
         'player_user': this_player.user.pk,
-        'stat': stat,
-        'graph_data': graph_data
+        'stat': stat
     }
     return HttpResponse(template.render(context, request))
 
@@ -557,21 +540,7 @@ def delete_game(request, game_id):
 
 def graphs(request):
     template = loader.get_template("core/graphs.html")
-
-    players = []
-    for x in Player.objects.all():
-        players.append((x.name, x.pk))
-
-    games = []
-
-    for x in Game.objects.all():
-        games.append((x.player1.pk, x.player2.pk, x.change))
-
-    context = {
-        'players': players,
-        'graph_data': games
-    }
-
+    context = {}
     return HttpResponse(template.render(context, request))
 
 
@@ -691,3 +660,59 @@ def json_pvp_stat(request, player_one, player_two):
     }
 
     return JsonResponse(res)
+
+
+def json_player_graph(request, player_id):
+    try:
+        this_player = Player.objects.get(pk=player_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({})
+
+    graph_data = []
+
+    query = Q(player1=this_player.pk)
+    query.add(Q(player2=this_player.pk), Q.OR)
+
+    all_games = Game.objects.filter(query).order_by("pk")
+
+    if len(all_games) > 0:
+        graph_data.append([all_games[0].pk - 1, 800.0])
+
+    for g in all_games:
+        if g.player1 == this_player:
+            graph_data.append([g.pk, float(g.newElo1())])
+        else:
+            graph_data.append([g.pk, float(g.newElo2())])
+
+    json = {
+        "games": graph_data
+    }
+    return JsonResponse(json)
+
+
+def json_interactive_graph(request):
+    players = Player.objects.all()
+
+    player_names = []
+    player_pks = []
+
+    for player in players:
+        player_names.append(player.name)
+        player_pks.append(player.pk)
+
+    all_games = Game.objects.all()
+
+    games = []
+
+    for game in all_games:
+        #p1, p2, change, id
+        games.append([game.player1.pk, game.player2.pk, float(game.change), game.pk])
+
+    json = {
+        'games': games,
+        'player_count': len(players),
+        'player_names': player_names,
+        'player_pks': player_pks
+    }
+
+    return JsonResponse(json)

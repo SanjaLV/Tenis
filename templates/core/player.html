@@ -3,11 +3,12 @@
 
 
 {% block import %}
+    {% load static %}
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="{% static "/js/google_charts.js" %}"></script>
 {% endblock %}
 
 {% block script %}
-    {% include "js/google_charts.js" with graph_data=graph_data only %}
 {% endblock %}
 
 
@@ -66,7 +67,5 @@
 
 
 {% block full_size %}
-    {% if graph_data %}
-        <div id="chart_div" style="height:500px;"></div>
-    {% endif %}
+    <div id="chart_div" style="height:500px;"></div>
 {% endblock %}

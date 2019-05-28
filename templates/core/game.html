@@ -2,8 +2,6 @@
 {% block title %} {{ game.player1 }} vs {{ game.player2 }} {% endblock %}
 
 {% block script %}
-    {% include "js/json_request.js" %}
-
     {% include "js/LoadPVP.js" with p1=game.player1.pk p2=game.player2.pk only %}
 
 {% endblock %}

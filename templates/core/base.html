@@ -13,6 +13,9 @@
 
     <title>{% block title %}Sanja test{% endblock %}</title>
 
+    {% load static %}
+    <script src="{% static "/js/json_request.js" %}"></script>
+
     {% block import %}
     {% endblock %}
 
@@ -22,7 +25,7 @@
         {% endblock %}
 
 
-        {% include "js/json_request.js" %}
+
 
 
         function ShowToVerify(text) {
@@ -40,7 +43,6 @@
         }
 
         GetNotificationCount();
-
     </script>
 </head>
 <body>

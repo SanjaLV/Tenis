@@ -13,10 +13,8 @@
 
 {% block import %}
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-{% endblock %}
-
-{% block script %}
-    {% include "js/multi_chart.js" with players=players graph_data=graph_data only %}
+    {% load static %}
+    <script src="{% static "/js/multi_chart.js" %}"></script>
 {% endblock %}
 
 {% block main %}
@@ -42,7 +40,5 @@
 {% endblock %}
 
 {% block full_size %}
-    {% if graph_data %}
-        <div id="chart_div" style="height:1000px;"></div>
-    {% endif %}
+    <div id="chart_div" style="height:1000px;"></div>
 {% endblock %}
